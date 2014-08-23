@@ -1,5 +1,7 @@
 dep_bool_menu "PWM Generator" PWM_SUPPORT $ARCH_AVR
   dep_bool "PWM general" PWM_GENERAL_SUPPORT $PWM_SUPPORT
+  dep_bool "  8 to 12bit cie1931 led mode" PWM_LED_SUPPORT $PWM_GENERAL_SUPPORT
+  dep_bool "  led fading support" PWM_LED_FADING_SUPPORT $PWM_GENERAL_SUPPORT
   dep_bool "  invert input" PWM_GENERAL_INVERT_SUPPORT $PWM_GENERAL_SUPPORT
   dep_bool "  fading support" PWM_GENERAL_FADING_SUPPORT $PWM_GENERAL_SUPPORT
   dep_bool "  use Channel A" CH_A_PWM_GENERAL_SUPPORT $PWM_GENERAL_SUPPORT

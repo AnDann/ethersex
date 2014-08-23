@@ -39,7 +39,7 @@
 // timer ticks needed for one 20ms clock tick
 #define CLOCK_TICKS           (F_CPU/CLOCK_PRESCALER/HZ)
 
-extern uint8_t milliticks;
+extern uint16_t milliticks;
 
 /* initialize hardware timer */
 void periodic_init(void);

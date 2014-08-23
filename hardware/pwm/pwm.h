@@ -22,8 +22,13 @@
 #ifndef HAVE_PWM_GENERAL_H
 #define HAVE_PWM_GENERAL_H
 
+#ifndef PWM_LED_SUPPORT
 #define PWM_MIN_VALUE 0xFF
 #define PWM_MAX_VALUE 0x00
+#else
+#define PWM_MIN_VALUE 0x00
+#define PWM_MAX_VALUE 0xFF
+#endif
 
 int16_t parse_cmd_pwm_fade_command(char *cmd, char *output, uint16_t len);
 int16_t parse_cmd_pwm_command(char *cmd, char *output, uint16_t len);
@@ -36,6 +41,17 @@ pwm_periodic();
 
 uint8_t
 getpwm(char channel);
+
+#ifdef PWM_GENERAL_FADING_SUPPORT
+uint8_t
+getpwmfade(char channel);
+void
+setpwmfade(char channel, uint8_t setval);
+void
+setpwmfadestep(uint8_t setval);
+uint8_t
+getpwmfadestep();
+#endif
 
 void
 setpwm(char channel, uint8_t setval);

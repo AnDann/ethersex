@@ -36,7 +36,7 @@ uint16_t bootload_delay = CONF_BOOTLOAD_DELAY;
 #endif
 
 extern volatile uint8_t newtick;
-uint8_t milliticks;
+uint16_t milliticks;
 
 void
 periodic_init(void)
@@ -63,6 +63,10 @@ periodic_init(void)
   TC1_INT_COMPARE_ON;
   TC1_INT_OVERFLOW_ON;
 #else
+#ifdef PWM_LED_SUPPORT
+  /* timer 1 in use from PWM_LED with (F_CPU / PWM_PRESCALER / 4000) Hz */
+  TC1_INT_COMPARE_OFF;
+#else
   /* init timer1 to expire after ~20ms, with CTC enabled */
   TC1_MODE_CTC;
   TC1_COUNTER_COMPARE = (F_CPU / CLOCK_PRESCALER / HZ) - 1;
@@ -70,9 +74,10 @@ periodic_init(void)
   NTPADJDEBUG("configured OCR1A to %d\n", TC1_COUNTER_COMPARE);
 #endif
 #endif
+#endif
 }
 
-#ifdef FREQCOUNT_SUPPORT
+#if defined(FREQCOUNT_SUPPORT) || defined(PWM_LED_SUPPORT)
 void
 timer_expired(void)
 #else
@@ -81,10 +86,10 @@ ISR(TC1_VECTOR_COMPARE)
 {
 #ifdef CLOCK_CPU_SUPPORT
   TC1_COUNTER_COMPARE += CLOCK_TICKS;
-#endif
-  newtick = 1;
   if (++milliticks >= HZ)
     milliticks -= HZ;
+#endif
+  newtick = 1;
 }
 
 /*

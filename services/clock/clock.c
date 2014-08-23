@@ -44,7 +44,7 @@
 #include "clock.h"
 
 static timestamp_t clock_timestamp;
-static uint8_t ticks;
+static uint16_t ticks;
 static timestamp_t sync_timestamp;
 static timestamp_t n_sync_timestamp;
 static timestamp_t n_sync_tick;
@@ -164,13 +164,13 @@ clock_set_time_raw(timestamp_t new_sync_timestamp)
 }
 
 void
-clock_set_time_raw_hr(timestamp_t new_sync_timestamp, uint8_t new_ticks)
+clock_set_time_raw_hr(timestamp_t new_sync_timestamp, uint16_t new_ticks)
 {
   clock_timestamp = new_sync_timestamp;
   ticks = new_ticks;
 }
 
-uint8_t
+uint16_t
 clock_get_ticks(void)
 {
   return ticks;
