@@ -63,7 +63,7 @@ periodic_init(void)
   TC1_INT_COMPARE_ON;
   TC1_INT_OVERFLOW_ON;
 #else
-#ifdef PWM_LED_SUPPORT
+#ifdef PWM_SUPPORT
   /* timer 1 in use from PWM_LED with (F_CPU / PWM_PRESCALER / 4000) Hz */
   TC1_INT_COMPARE_OFF;
 #else
@@ -77,7 +77,7 @@ periodic_init(void)
 #endif
 }
 
-#if defined(FREQCOUNT_SUPPORT) || defined(PWM_LED_SUPPORT)
+#if defined(FREQCOUNT_SUPPORT) || defined(PWM_SUPPORT)
 void
 timer_expired(void)
 #else

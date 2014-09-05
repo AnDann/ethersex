@@ -22,13 +22,15 @@
 #ifndef HAVE_PWM_GENERAL_H
 #define HAVE_PWM_GENERAL_H
 
-#ifndef PWM_LED_SUPPORT
-#define PWM_MIN_VALUE 0xFF
-#define PWM_MAX_VALUE 0x00
-#else
 #define PWM_MIN_VALUE 0x00
 #define PWM_MAX_VALUE 0xFF
+
+#ifndef PWM_LED_SUPPORT
+#define PWM_CONVERT_VALUE(a) a
+#else
+#define PWM_CONVERT_VALUE(a) pgm_read_word_near(cie_luminance_8_to_12bit + a);
 #endif
+
 
 int16_t parse_cmd_pwm_fade_command(char *cmd, char *output, uint16_t len);
 int16_t parse_cmd_pwm_command(char *cmd, char *output, uint16_t len);

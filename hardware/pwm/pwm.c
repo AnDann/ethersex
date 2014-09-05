@@ -35,9 +35,12 @@
 
 #ifdef PWM_LED_SUPPORT
 #include "cie1931.h"
-uint16_t pwm_ticks=0;
 #define FULL_OVERFLOWS ((F_CPU/8/4000/HZ)+1)
+#else
+#define FULL_OVERFLOWS ((F_CPU/64/256/HZ)+1)
 #endif
+
+uint16_t pwm_ticks=0;
 
 #ifdef CH_A_PWM_GENERAL_SUPPORT
   uint8_t channelAval=PWM_MIN_VALUE;
@@ -75,17 +78,17 @@ pwm_init(){
 //  TC1_COUNTER_CURRENT=0x0000; //set the timer counter
 #ifdef CH_A_PWM_GENERAL_SUPPORT
   DDR_CONFIG_OUT(CHANNEL_A_PWM); 		// PWM OUTPUT
-  TC1_COUNTER_COMPARE=pgm_read_word_near(cie_luminance_8_to_12bit+channelAval);
+  TC1_COUNTER_COMPARE=PWM_CONVERT_VALUE(channelAval);
   TC1_OUTPUT_COMPARE_CLEAR; 		// Clear OCnA on compare match
 #endif /* CH_A_PWM_GENERAL_SUPPORT */
 #ifdef CH_B_PWM_GENERAL_SUPPORT
   DDR_CONFIG_OUT(CHANNEL_B_PWM); 		// PWM OUTPUT
-  TC1_COUNTER_COMPARE_B=pgm_read_word_near(cie_luminance_8_to_12bit+channelBval);
+  TC1_COUNTER_COMPARE_B=PWM_CONVERT_VALUE(channelBval);
   TC1_OUTPUT_COMPARE_B_CLEAR; 		// Clear OCnB on compare match
 #endif /* CH_B_PWM_GENERAL_SUPPORT */
 #ifdef CH_C_PWM_GENERAL_SUPPORT
   DDR_CONFIG_OUT(CHANNEL_C_PWM); 		// PWM OUTPUT
-  OCR1C=pgm_read_word_near(cie_luminance_8_to_12bit+channelCval);
+  OCR1C=PWM_CONVERT_VALUE(channelCval);
   TCCR1A|=_BV(COM1C1)|_BV(COM1C0); 		// Set OCnC on compare match
 #endif /* CH_C_PWM_GENERAL_SUPPORT */
 
@@ -93,10 +96,14 @@ pwm_init(){
 //  TCCR1B|=_BV(WGM12); 					// waveform generation mode: CTC,
 //  TCCR1B|=_BV(CS10); 					// clockselect: clkI/O/1 (No prescaler)
  
-  TC1_INPUT_CAPTURE=3999;	 			// set the timer top value (PWM_Freq= F_CPU /(Prescaler * (ICR1 + 1)) )
   TC1_MODE_WGM14;						// Fast PWM, TOP ICR1, Pin low on OCR1A,OCR1B match
+#ifdef PWM_LED_SUPPORT
+  TC1_INPUT_CAPTURE=3999;	 			// set the timer top value (PWM_Freq= F_CPU /(Prescaler * (ICR1 + 1)) )
   TC1_PRESCALER_8;						// clockselect: clkI/O/8 (From prescaler)
-
+#else
+  TC1_INPUT_CAPTURE=0xFF;	 			// set the timer top value (PWM_Freq= F_CPU /(Prescaler * (ICR1 + 1)) )
+  TC1_PRESCALER_64;						// clockselect: clkI/O/64 (From prescaler)
+#endif
   PWMDEBUG("PWM freq: %u Hz\n", F_CPU / (8 * (TC1_INPUT_CAPTURE + 1)));
 
   TC1_INT_OVERFLOW_ON;
@@ -126,7 +133,6 @@ pwm_init(){
 */
 }
 
-#ifdef PWM_LED_SUPPORT
 ISR(TC1_VECTOR_OVERFLOW)
 {
 	/*	Tick the clock from here because periodic.h has no access to Timer1*/
@@ -137,10 +143,11 @@ ISR(TC1_VECTOR_OVERFLOW)
         // call the regular ISR for timer expired condition (every 20ms)
         timer_expired();
 	}
+#ifdef PWM_LED_SUPPORT
 	if (pwm_fade_counter)
 		pwm_fade_counter--;
-}
 #endif
+}
 
 // set pwm to hardware value use setpwm or setpwmfade to set from extern
 void
@@ -149,7 +156,7 @@ setpwm_hardware(char channel, uint8_t setval){
 #ifdef PWM_GENERAL_INVERT_SUPPORT
   setval=255-setval;
 #endif /* PWM_GENERAL_INVERT_SUPPORT */
-	uint16_t temp = pgm_read_word_near(cie_luminance_8_to_12bit+setval);
+	uint16_t temp = PWM_CONVERT_VALUE(setval);
   switch (channel){
 #ifdef CH_A_PWM_GENERAL_SUPPORT
     case 'a': 
@@ -291,7 +298,9 @@ getpwmfadestep()
 void
 setpwm(char channel, uint8_t setval){
   PWMDEBUG ("set %c, values: %i\n",channel, setval);
+#ifdef PWM_LED_FADING_SUPPORT
   setpwmfade(channel,setval);
+#endif
   setpwm_hardware(channel,setval);
 }
 
