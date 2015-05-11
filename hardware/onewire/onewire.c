@@ -92,36 +92,33 @@ uint8_t noinline
 reset_onewire(uint8_t busmask)
 {
   uint8_t data1, data2;
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-  {
-    /* pull bus low */
-    OW_CONFIG_OUTPUT(busmask);
-    OW_LOW(busmask);
+  /* pull bus low */
+  OW_CONFIG_OUTPUT(busmask);
+  OW_LOW(busmask);
 
-    /* wait 480us */
-    _delay_loop_2(OW_RESET_TIMEOUT_1);
+  /* wait 480us */
+  _delay_loop_2(OW_RESET_TIMEOUT_1);
 
-    /* release bus */
-    OW_CONFIG_INPUT(busmask);
+  /* release bus */
+  OW_CONFIG_INPUT(busmask);
 
-    /* wait 60us (maximal pause) + 30 us (half minimum pulse) */
-    _delay_loop_2(OW_RESET_TIMEOUT_2);
+  /* wait 60us (maximal pause) + 30 us (half minimum pulse) */
+  _delay_loop_2(OW_RESET_TIMEOUT_2);
 
-    /* sample data */
-    data1 = OW_GET_INPUT(busmask);
+  /* sample data */
+  data1 = OW_GET_INPUT(busmask);
 
-    /* wait 390us */
-    _delay_loop_2(OW_RESET_TIMEOUT_3);
+  /* wait 390us */
+  _delay_loop_2(OW_RESET_TIMEOUT_3);
 
-    /* sample data again */
-    data2 = OW_GET_INPUT(busmask);
+  /* sample data again */
+  data2 = OW_GET_INPUT(busmask);
 
-    /* if first sample is low and second sample is high, at least one device
-     * is attached to this bus */
+  /* if first sample is low and second sample is high, at least one device
+   * is attached to this bus */
 
-    OW_HIGH(busmask);
-    OW_CONFIG_OUTPUT(busmask);
-  }
+  OW_HIGH(busmask);
+  OW_CONFIG_OUTPUT(busmask);
   return (uint8_t) (~data1 & data2 & busmask);
 }
 
@@ -151,12 +148,9 @@ ow_write_0(uint8_t busmask)
   /* a write 0 timeslot is initiated by holding the data line low for
    * approximately 80us */
 
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-  {
-    OW_LOW(busmask);
-    _delay_loop_2(OW_WRITE_0_TIMEOUT);
-    OW_HIGH(busmask);
-  }
+  OW_LOW(busmask);
+  _delay_loop_2(OW_WRITE_0_TIMEOUT);
+  OW_HIGH(busmask);
 }
 
 
@@ -169,26 +163,23 @@ ow_read(uint8_t busmask)
    * discarded */
 
   uint8_t data;
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-  {
-    OW_CONFIG_OUTPUT(busmask);
-    OW_LOW(busmask);
+  OW_CONFIG_OUTPUT(busmask);
+  OW_LOW(busmask);
 
-    _delay_loop_2(OW_READ_TIMEOUT_1);
+  _delay_loop_2(OW_READ_TIMEOUT_1);
 
-    OW_HIGH(busmask);
-    OW_CONFIG_INPUT(busmask);
+  OW_HIGH(busmask);
+  OW_CONFIG_INPUT(busmask);
 
-    _delay_loop_2(OW_READ_TIMEOUT_2);
+  _delay_loop_2(OW_READ_TIMEOUT_2);
 
-    /* sample data now */
-    data = (uint8_t) (OW_GET_INPUT(busmask) > 0);
+  /* sample data now */
+  data = (uint8_t) (OW_GET_INPUT(busmask) > 0);
 
-    /* wait for remaining slot time */
-    _delay_loop_2(OW_READ_TIMEOUT_3);
+  /* wait for remaining slot time */
+  _delay_loop_2(OW_READ_TIMEOUT_3);
 
-    OW_CONFIG_OUTPUT(busmask);
-  }
+  OW_CONFIG_OUTPUT(busmask);
   return data;
 }
 
