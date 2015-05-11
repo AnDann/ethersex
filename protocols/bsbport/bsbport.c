@@ -24,10 +24,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/pgmspace.h>
-#include <util/delay.h>
 #include <string.h>
-#include "core/eeprom.h"
 #include "config.h"
 #include "bsbport.h"
 #include "bsbport_net.h"
