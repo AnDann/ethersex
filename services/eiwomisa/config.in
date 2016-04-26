@@ -1,0 +1,47 @@
+dep_bool_menu "Eiwomisa Module" EIWOMISA_SUPPORT $ARCH_AVR $TCP_SUPPORT
+
+    if [ "$MQTT_SUPPORT" = "y" && "$MQTT_STATIC_CONF" = "y" ]; then
+      comment  '----- MQTT -----'
+      dep_bool 'MQTT Support' EIWOMISA_MQTT_SUPPORT $MQTT_SUPPORT $MQTT_STATIC_CONF $EIWOMISA_SUPPORT
+    else
+      comment  '----- MQTT not available (please enable MQTT Client) -----'
+    fi
+    
+    if [ "$TTY_SUPPORT" = "y" ]; then
+      comment  '----- TTY -----'
+      dep_bool 'TTY Support' EIWOMISA_TTY_SUPPORT $TTY_SUPPORT $EIWOMISA_SUPPORT
+      comment  '----- Backlight -----'
+      dep_bool "Use Stella for LCD Backlight" EIWOMISA_STELLA_BACKLIGHT $STELLA_SUPPORT $EIWOMISA_TTY_SUPPORT
+      if [ "$EIWOMISA_STELLA_BACKLIGHT" = "y" || "$HD44780_BACKLIGHT_SUPPORT" = "y" ]; then
+        int "Backlight Timeout (s)" EIWOMISA_BACKLIGHT_TIMEOUT 30
+      else
+        comment  '----- Backlight not available (please enable HD44780 Backlight or Stella) -----'
+      fi
+    else
+      comment  '----- TTY not available (please enable TTY Layer) -----'
+    fi
+
+    if [ "$IRMP_RX_SUPPORT" = "y" ]; then
+      comment  '----- IRMP -----'
+      dep_bool 'IRMP Input Support' EIWOMISA_IRMP_SUPPORT $IRMP_RX_SUPPORT $EIWOMISA_SUPPORT
+    else
+      comment  '----- IRMP RX not available (please enable IRMP RX Support) -----'
+    fi
+      
+    dep_bool 'Buttons Input Support' EIWOMISA_BUTTON_SUPPORT $BUTTONS_INPUT_SUPPORT $EIWOMISA_SUPPORT
+    if [ "$DMX_STORAGE_SUPPORT" = "y" ]; then
+      comment  '----- DMX -----'
+      dep_bool 'DMX Support' EIWOMISA_DMX_SUPPORT $DMX_STORAGE_SUPPORT
+      int "DMX Universe" EIWOMISA_UNIVERSE 1
+      int "Offset in Universe" EIWOMISA_UNIVERSE_OFFSET 0
+    else
+      comment  '----- DMX not available (please enable DMX Storage) -----'
+    fi
+    
+    dep_bool "Use CIE1931 Brightness correction" EIWOMISA_USE_CIE1931	$EIWOMISA_SUPPORT
+    
+    comment  '----- Debug -----'
+    dep_bool 'Debug' DEBUG_EIWOMISA $DEBUG
+    dep_bool 'Debug PWM' DEBUG_EIWOMISA_PWM $DEBUG
+
+endmenu

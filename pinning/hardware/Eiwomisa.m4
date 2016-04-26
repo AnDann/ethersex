@@ -1,0 +1,53 @@
+dnl
+dnl user_Eiwomisa.m4
+dnl
+dnl Pin Configuration for 'user_Eiwomisa'.  Edit it to fit your needs.
+dnl
+
+ifdef(`conf_BUTTONS_INPUT', `
+/* input buttons */
+pin(BTN_UP, PC6, INPUT)
+pin(BTN_RIGHT, PC5, INPUT)
+pin(BTN_DOWN, PC4, INPUT)
+pin(BTN_LEFT, PC3, INPUT)
+pin(BTN_FIRE, PC2, INPUT)
+pin(BTN_FIRE2, PC1, INPUT)
+pin(BTN_DIP1, PC7, INPUT)
+pin(BTN_DIP2, PD6, INPUT)
+
+#define BUTTONS_COUNT 8
+
+#define BUTTONS_CONFIG(_x) \
+_x(BTN_UP)\
+_x(BTN_DOWN)\
+_x(BTN_LEFT)\
+_x(BTN_RIGHT)\
+_x(BTN_FIRE)\
+_x(BTN_FIRE2)\
+_x(BTN_DIP1)\
+_x(BTN_DIP2)
+')
+
+pin(HD44780_RS, PB3)
+pin(HD44780_EN1, PB4)
+pin(HD44780_D0, PA0, OUTPUT)
+pin(HD44780_D1, PA1, OUTPUT)
+pin(HD44780_D2, PA2, OUTPUT)
+pin(HD44780_D3, PA3, OUTPUT)
+pin(HD44780_D4, PA4)
+pin(HD44780_D5, PA5)
+pin(HD44780_D6, PA6)
+pin(HD44780_D7, PA7)
+pin(HD44780_BL, PC0, OUTPUT)
+pin(HD44780_BL_GND, PD7, OUTPUT)
+
+pin(CHANNEL_R_PWM, PB6, OUTPUT)
+pin(CHANNEL_G_PWM, PB7, OUTPUT)
+pin(CHANNEL_B_PWM, PD5, OUTPUT)
+pin(CHANNEL_W_PWM, PD4, OUTPUT)
+
+pin(IRMP_RX, PB2)
+#define IRMP_USE_TIMER0
+#define IRMP_RX_LOW_ACTIVE
+#undef IRMP_RX_LED_LOW_ACTIVE
+

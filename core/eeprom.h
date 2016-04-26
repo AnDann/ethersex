@@ -110,6 +110,10 @@ struct eeprom_config_t
   uint8_t stella_channel_values[STELLA_CHANNELS];
 #endif
 
+#ifdef EIWOMISA_SUPPORT
+  uint8_t eiwomisa_channel_values[LED_ALL];
+#endif
+
 #ifdef SMS77_EEPROM_SUPPORT
   char sms77_username[SMS77_VALUESIZE];
   char sms77_password[SMS77_VALUESIZE];

@@ -4,6 +4,7 @@ SUBSUBDIRS += services/dyndns
 SUBSUBDIRS += services/dmx-storage
 SUBSUBDIRS += services/dmx-fxslot
 SUBSUBDIRS += services/echo
+SUBSUBDIRS += services/eiwomisa
 SUBSUBDIRS += services/freqcount
 SUBSUBDIRS += services/pam
 SUBSUBDIRS += services/httpd
