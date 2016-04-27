@@ -5,6 +5,7 @@ $(EIWOMISA_SUPPORT)_SRC += services/eiwomisa/eiwomisa_pwm.c services/eiwomisa/ei
 $(EIWOMISA_SUPPORT)_ECMD_SRC += services/eiwomisa/eiwomisa_ecmd.c
 $(EIWOMISA_MQTT_SUPPORT)_SRC += services/eiwomisa/eiwomisa_mqtt.c
 $(EIWOMISA_BUTTON_SUPPORT)_SRC += services/eiwomisa/eiwomisa_button.c
+$(EIWOMISA_TTY_SUPPORT)_SRC += services/eiwomisa/eiwomisa_tty.c
 
 ##############################################################################
 # generic fluff

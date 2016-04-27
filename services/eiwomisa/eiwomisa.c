@@ -25,9 +25,7 @@
 
 #include "config.h"
 
-#include "eiwomisa.h"
 #include "eiwomisa_pwm.h"
-#include "protocols/ecmd/ecmd-base.h"
 
 #ifdef DEBUG_EIWOMISA
 #include "core/debug.h"
@@ -197,60 +195,12 @@ eiwomisa_storeToEEPROM(void)
   eeprom_save(eiwomisa_config, &config, sizeof(eiwomisa_config_t));
   eeprom_update_chksum();
 }
-
-int16_t
-parse_cmd_eiwomisa_save(char *cmd, char *output, uint16_t len)
-{
-  eiwomisa_storeToEEPROM();
-  return ECMD_FINAL_OK;
-}
-int16_t
-parse_cmd_eiwomisa_load(char *cmd, char *output, uint16_t len)
-{
-  eiwomisa_loadFromEEPROM();
-  return ECMD_FINAL_OK;
-}
 #endif
 
-int16_t
-parse_cmd_eiwomisa_prog(char *cmd, char *output, const uint16_t len)
-{
-  if (cmd[0])
-  {
-    eiwomisa_changeProg (atoi(cmd));
-    return ECMD_FINAL_OK;
-  }
-  else
-  {
-    itoa(config.program, output, 10);
-    return ECMD_FINAL(strlen(output));
-  }
-}
-
-int16_t
-parse_cmd_eiwomisa_prog_speed(char *cmd, char *output, const uint16_t len)
-{
-  if (cmd[0])
-  {
-    fxslot[EIWOMISA_FXSLOT].speed = atoi(cmd);
-    return ECMD_FINAL_OK;
-  }
-  else
-  {
-    itoa(fxslot[EIWOMISA_FXSLOT].speed, output, 10);
-    return ECMD_FINAL(strlen(output));
-  }
-}
 
 /*
   -- Ethersex META --
   header(services/eiwomisa/eiwomisa.h)
   init(eiwomisa_init)
   mainloop(eiwomisa_periodic)
-  ecmd_feature(eiwomisa_prog_speed, "eiwomisa prog speed", , get/set actual programspeed)
-  ecmd_feature(eiwomisa_prog, "eiwomisa prog", , get/set actual program)
-  ecmd_ifndef(TEENSY_SUPPORT)
-    ecmd_feature(eiwomisa_save, "eiwomisa save", , write channels to EEPROM)
-    ecmd_feature(eiwomisa_load, "eiwomisa load", , write channels to EEPROM)
-  ecmd_endif()
 */

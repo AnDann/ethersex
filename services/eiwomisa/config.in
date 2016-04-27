@@ -39,6 +39,7 @@ dep_bool_menu "Eiwomisa Module" EIWOMISA_SUPPORT $ARCH_AVR $TCP_SUPPORT
       comment  '----- DMX not available (please enable DMX Storage) -----'
     fi
     
+    comment  '----- Output -----'
     dep_bool "Use CIE1931 Brightness correction" EIWOMISA_USE_CIE1931	$EIWOMISA_SUPPORT
     
     comment  '----- Debug -----'

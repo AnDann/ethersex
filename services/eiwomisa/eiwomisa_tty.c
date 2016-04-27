@@ -19,9 +19,51 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef HAVE_EIWOMISA_BUTTON_H
-#define HAVE_EIWOMISA_BUTTON_H
- 
-void eiwomisa_button_init();
+#include <stdio.h>
+#include <stdlib.h>
 
-#endif /* HAVE_EIWOMISA_BUTTON_H */
+#include "config.h"
+
+#include "hardware/input/buttons/buttons.h"
+#include "eiwomisa.h"
+#include "eiwomisa_button.h"
+
+void
+eiwomisa_button_init()
+{
+  hook_buttons_input_register(eiwomisa_button_handler);
+}
+
+void
+eiwomisa_button_handler(buttons_ButtonsType button, uint8_t status)
+{
+  if(status == BUTTON_RELEASE)
+    return;
+  switch(button)
+  {
+    case BTN_UP:
+      eiwomisa_doAction(WHITE_UP);
+      break;
+    case BTN_DOWN:
+      eiwomisa_doAction(WHITE_DOWN);
+      break;
+    case BTN_LEFT:
+      eiwomisa_doAction(PROG_DOWN);
+      break;
+    case BTN_RIGHT:
+      eiwomisa_doAction(PROG_UP);
+      break;
+    case BTN_FIRE:
+      break;
+    case BTN_FIRE2:
+      eiwomisa_doAction(SAVE);
+      break;
+  }
+}
+
+
+/*
+  -- Ethersex META --
+  header(services/eiwomisa/eiwomisa_button.h)
+  init(eiwomisa_button_init)
+*/

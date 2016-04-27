@@ -29,7 +29,6 @@
 
 #include "eiwomisa_pwm.h"
 #include "core/periodic.h"
-#include "protocols/ecmd/ecmd-base.h"
 
 #ifdef EIWOMISA_USE_CIE1931
 #include "cie1931.h"
@@ -45,7 +44,6 @@
 static uint8_t channelVal[LED_ALL];
 static uint8_t channelFade[LED_ALL];
 static volatile uint8_t fadeDelay;
-static volatile uint8_t fadeStep;
 
 // init DDR, waveform and timer
 void
@@ -75,7 +73,7 @@ eiwomisa_pwm_init()
 static void
 eiwomisa_setpwm_hardware(const e_leds channel, const uint8_t setval)
 {
-  unit16_t temp;
+  uint16_t temp;
   channelVal[channel]=setval;
 #ifdef EIWOMISA_USE_CIE1931
   temp = pgm_read_word_near(cie_luminance_8bit_to_top + setval);
@@ -179,80 +177,10 @@ eiwomisa_setfadeDelay(const uint8_t setval)
   fadeDelay = setval;
 }
 
-// ECMD:  set/get fading for channel
-int16_t
-parse_cmd_eiwomisa_pwm_fade_command(char *cmd, char *output, const uint16_t len)
-{
-  if (cmd[0] == '\0')
-  {
-    e_leds i;
-    for (i = 0; i < LED_ALL; i++)
-    {
-      PWMDEBUG("Channel %i=%i\n", i, eiwomisa_getpwmfade(i));
-    }
-
-    return ECMD_FINAL_OK;
-  }
-  e_leds channel = atoi(cmd + 1);
-  if (cmd[2] == '\0')
-  {
-    return
-      ECMD_FINAL(snprintf_P
-                 (output, len, PSTR("%i"), eiwomisa_getpwmfade(channel)));
-  }
-  uint8_t value = atoi(cmd + 3);
-  eiwomisa_setpwmfade(channel, value);
-
-  return ECMD_FINAL_OK;
-}
-
-// ECMD:  set/get channel
-int16_t
-parse_cmd_eiwomisa_pwm_command(char *cmd, char *output, const uint16_t len)
-{
-
-  if (cmd[0] == '\0')
-  {
-    e_leds i;
-    for (i = 0; i < LED_ALL; i++)
-    {
-      PWMDEBUG("Channel %i=%i\n", i, eiwomisa_getpwm(i));
-    }
-
-    return ECMD_FINAL_OK;
-  }
-  e_leds channel = atoi(cmd + 1);
-  if (cmd[2] == '\0')
-  {
-    return
-      ECMD_FINAL(snprintf_P
-                 (output, len, PSTR("%i"), eiwomisa_getpwm(channel)));
-  }
-  uint8_t value = atoi(cmd + 3);
-  eiwomisa_setpwm(channel, value);
-
-  return ECMD_FINAL_OK;
-}
-
-// ECMD:  set/get fading delay
-int16_t
-parse_cmd_eiwomisa_pwm_delay_command(char *cmd, char *output, const uint16_t len)
-{
-  if (cmd[0])
-  {
-    fadeDelay = atoi(cmd);
-    return ECMD_FINAL_OK;
-  }
-  else
-  {
-    itoa(fadeDelay, output, 10);
-    return ECMD_FINAL(strlen(output));
-  }
-}
-
 void
 eiwomisa_pwm_periodic()
 {
+  static uint8_t fadeStep;
   if (++fadeStep >= fadeDelay)
   {
     /* Fade channels. */
@@ -278,8 +206,4 @@ eiwomisa_pwm_periodic()
   init(eiwomisa_pwm_init)
   periodic_milliticks_header(services/eiwomisa/eiwomisa_pwm.h)
   periodic_milliticks_isr(eiwomisa_pwm_periodic())
-  block([[EIWOMISA_PWM]])
-  ecmd_feature(eiwomisa_pwm_fade_command, "eiwomisa pwm fade", [channel value], Set/Get fade channel value)  
-  ecmd_feature(eiwomisa_pwm_delay_command, "eiwomisa pwm delay", [value], Set/Get delay value)
-  ecmd_feature(eiwomisa_pwm_command, "eiwomisa pwm", [channel value], Set/Get channel value)
 */

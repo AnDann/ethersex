@@ -24,10 +24,6 @@
 
 #include "eiwomisa.h"
 
-int16_t parse_cmd_eiwomisa_pwm_fade_command(char *cmd, char *output,
-                                            const uint16_t len);
-int16_t parse_cmd_eiwomisa_pwm_command(char *cmd, char *output,const uint16_t len);
-
 void eiwomisa_pwm_init();
 
 void eiwomisa_pwm_periodic();

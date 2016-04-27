@@ -19,9 +19,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef HAVE_EIWOMISA_BUTTON_H
-#define HAVE_EIWOMISA_BUTTON_H
- 
-void eiwomisa_button_init();
+#ifndef HAVE_EIWOMISA_ECMD_H
+#define HAVE_EIWOMISA_ECMD_H
 
-#endif /* HAVE_EIWOMISA_BUTTON_H */
+int16_t parse_cmd_eiwomisa_prog_speed(char *cmd, char *output, const uint16_t len);
+int16_t parse_cmd_eiwomisa_prog(char *cmd, char *output, const uint16_t len);
+
+#ifndef TEENSY_SUPPORT
+int16_t parse_cmd_eiwomisa_save(char *cmd, char *output, uint16_t len);
+int16_t parse_cmd_eiwomisa_load(char *cmd, char *output, uint16_t len);
+#endif
+
+int16_t parse_cmd_eiwomisa_pwm_fade_command(char *cmd, char *output,
+                                            const uint16_t len);
+int16_t parse_cmd_eiwomisa_pwm_command(char *cmd, char *output,const uint16_t len);
+int16_t parse_cmd_eiwomisa_pwm_delay_command(char *cmd, char *output, const uint16_t len)
+
+#endif /* HAVE_EIWOMISA_ECMD_H */

@@ -73,14 +73,9 @@ void eiwomisa_init();
 void eiwomisa_periodic();
 void eiwomisa_doAction(const e_actions action);
 
-int16_t parse_cmd_eiwomisa_prog_speed(char *cmd, char *output, const uint16_t len);
-int16_t parse_cmd_eiwomisa_prog(char *cmd, char *output, const uint16_t len);
-
 #ifndef TEENSY_SUPPORT
 void eiwomisa_loadFromEEPROM(void);
 void eiwomisa_storeToEEPROM(void);
-int16_t parse_cmd_eiwomisa_save(char *cmd, char *output, uint16_t len);
-int16_t parse_cmd_eiwomisa_load(char *cmd, char *output, uint16_t len);
 #endif
 
 #endif /* HAVE_EIWOMISA_H */
