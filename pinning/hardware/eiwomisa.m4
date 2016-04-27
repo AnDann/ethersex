@@ -1,7 +1,7 @@
 dnl
-dnl user_Eiwomisa.m4
+dnl eiwomisa.m4
 dnl
-dnl Pin Configuration for 'user_Eiwomisa'.  Edit it to fit your needs.
+dnl Pin Configuration for 'Eiwomisa'.  Edit it to fit your needs.
 dnl
 
 ifdef(`conf_BUTTONS_INPUT', `

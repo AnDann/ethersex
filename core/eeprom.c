@@ -128,6 +128,12 @@ eeprom_init (void)
   eeprom_save (stella_channel_values, stella_temp, 10);
 #endif
 
+#ifdef EIWOMISA_SUPPORT
+  eiwomisa_config_t temp = { .values = { 0 },
+                  .program = 0};
+  eeprom_save (eiwomisa_config, &temp, sizeof(eiwomisa_config_t));
+#endif
+
 #ifdef DMX_FXSLOT_SUPPORT
   struct fxslot_struct_stripped fxslots_temp[DMX_FXSLOT_AMOUNT] = { {0,0,0,0,0,0,0} };
   eeprom_save (dmx_fxslots, fxslots_temp, DMX_FXSLOT_AMOUNT*sizeof(struct fxslot_struct_stripped));

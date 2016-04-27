@@ -37,6 +37,10 @@
 #include "services/stella/stella.h"
 #endif
 
+#ifdef EIWOMISA_SUPPORT
+#include "services/eiwomisa/eiwomisa.h"
+#endif
+
 #ifdef SMS77_EEPROM_SUPPORT
 #include "protocols/sms77/sms77.h"
 #endif
@@ -111,7 +115,7 @@ struct eeprom_config_t
 #endif
 
 #ifdef EIWOMISA_SUPPORT
-  uint8_t eiwomisa_channel_values[LED_ALL];
+  eiwomisa_config_t eiwomisa_config;
 #endif
 
 #ifdef SMS77_EEPROM_SUPPORT

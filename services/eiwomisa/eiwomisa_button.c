@@ -19,24 +19,51 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef HAVE_EIWOMISA_PWM_H
-#define HAVE_EIWOMISA_PWM_H
+#include <stdio.h>
+#include <stdlib.h>
 
+#include "config.h"
+
+#include "hardware/input/buttons/buttons.h"
 #include "eiwomisa.h"
+#include "eiwomisa_button.h"
 
-int16_t parse_cmd_eiwomisa_pwm_fade_command(char *cmd, char *output,
-                                            const uint16_t len);
-int16_t parse_cmd_eiwomisa_pwm_command(char *cmd, char *output,const uint16_t len);
+void
+eiwomisa_button_init()
+{
+  hook_buttons_input_register(eiwomisa_button_handler);
+}
 
-void eiwomisa_pwm_init();
+void
+eiwomisa_button_handler(buttons_ButtonsType button, uint8_t status)
+{
+  if(status == BUTTON_RELEASE)
+    return;
+  switch(button)
+  {
+    case BTN_UP:
+      eiwomisa_doAction(WHITE_UP);
+      break;
+    case BTN_DOWN:
+      eiwomisa_doAction(WHITE_DOWN);
+      break;
+    case BTN_LEFT:
+      eiwomisa_doAction(PROG_DOWN);
+      break;
+    case BTN_RIGHT:
+      eiwomisa_doAction(PROG_UP);
+      break;
+    case BTN_FIRE:
+      break;
+    case BTN_FIRE2:
+      eiwomisa_doAction(SAVE);
+      break;
+  }
+}
 
-void eiwomisa_pwm_periodic();
 
-uint8_t eiwomisa_getpwm(const e_leds channel);
-void eiwomisa_setpwm(const e_leds channel,const uint8_t setval);
-uint8_t eiwomisa_getpwmfade(const e_leds channel);
-void eiwomisa_setpwmfade(const e_leds channel,const uint8_t setval);
-uint8_t eiwomisa_getfadeDelay();
-void eiwomisa_setfadeDelay(const uint8_t setval);
-
-#endif /* HAVE_EIWOMISA_PWM_H */
+/*
+  -- Ethersex META --
+  header(services/eiwomisa/eiwomisa_button.h)
+  init(eiwomisa_button_init)
+*/

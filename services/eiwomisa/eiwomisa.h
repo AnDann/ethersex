@@ -22,13 +22,24 @@
 #ifndef HAVE_EIWOMISA_H
 #define HAVE_EIWOMISA_H
 
-typedef enum 
+typedef enum e_leds
 { LED_R=0, LED_G, LED_B, LED_W, LED_ALL } e_leds;
 
-typedef enum
-{ SAVE, LOAD, PROG_UP, PROG_DOWN, WHITE_UP, WHITE_DOWN, WHITE_TOOGLE } e_actions;
+typedef enum e_actions
+{ 
+  SAVE,
+  LOAD, 
+  PROG_UP, 
+  PROG_DOWN, 
+  PROGSPEED_UP, 
+  PROGSPEED_DOWN, 
+  WHITE_UP, 
+  WHITE_DOWN, 
+  WHITE_TOOGLE, 
+  NONE 
+} e_actions;
 
-typedef enum
+typedef enum e_programs
 { 
 #ifdef EIWOMISA_DMX_SUPPORT
 #ifdef DMX_FX_RAINBOW
@@ -50,21 +61,26 @@ typedef enum
   AMBILIGHT,
 #endif
   WHITE
-} e_program;
+} e_programs;
 
 typedef struct eiwomisa_config_t
 {
   uint8_t values[LED_ALL];
-  e_program program;
+  e_programs program;
 } eiwomisa_config_t;
 
 void eiwomisa_init();
 void eiwomisa_periodic();
 void eiwomisa_doAction(const e_actions action);
 
+int16_t parse_cmd_eiwomisa_prog_speed(char *cmd, char *output, const uint16_t len);
+int16_t parse_cmd_eiwomisa_prog(char *cmd, char *output, const uint16_t len);
+
 #ifndef TEENSY_SUPPORT
 void eiwomisa_loadFromEEPROM(void);
 void eiwomisa_storeToEEPROM(void);
+int16_t parse_cmd_eiwomisa_save(char *cmd, char *output, uint16_t len);
+int16_t parse_cmd_eiwomisa_load(char *cmd, char *output, uint16_t len);
 #endif
 
 #endif /* HAVE_EIWOMISA_H */

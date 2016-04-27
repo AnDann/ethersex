@@ -27,21 +27,38 @@
 
 #include "eiwomisa.h"
 #include "eiwomisa_pwm.h"
+#include "protocols/ecmd/ecmd-base.h"
+
+#ifdef DEBUG_EIWOMISA
+#include "core/debug.h"
+#define EIWOMISADEBUG(a...)  debug_printf("eiwomisa: " a)
+#else
+#define EIWOMISADEBUG(a...)
+#endif
 
 #ifdef EIWOMISA_DMX_SUPPORT
 #include "services/dmx-storage/dmx_storage.h"
+#include "services/dmx-fxslot/dmx-fxslot.h"
 uint8_t eiwomisa_dmx_conn_id;
 #endif
+
+static eiwomisa_config_t config; 
 
 void
 eiwomisa_init()
 {
 #ifdef EIWOMISA_DMX_SUPPORT
+  /* Init FX Slot */
+  fxslot[EIWOMISA_FXSLOT].universe = EIWOMISA_UNIVERSE;
+  fxslot[EIWOMISA_FXSLOT].startchannel = EIWOMISA_UNIVERSE_OFFSET;
+  fxslot[EIWOMISA_FXSLOT].devices = 1;
+  fxslot[EIWOMISA_FXSLOT].margin = 0;
   /* Setup DMX-Storage Connection */
   eiwomisa_dmx_conn_id = dmx_storage_connect(EIWOMISA_UNIVERSE);
   get_dmx_channel_slot(EIWOMISA_UNIVERSE,
                                          EIWOMISA_UNIVERSE_OFFSET,
                                          eiwomisa_dmx_conn_id);
+  EIWOMISADEBUG("Setup DMX id %i\n", eiwomisa_dmx_conn_id);
 #endif
 #ifndef TEENSY_SUPPORT
   eiwomisa_loadFromEEPROM();
@@ -51,24 +68,83 @@ eiwomisa_init()
 void
 eiwomisa_periodic()
 {
-#ifdef EIWOMISA_DMX_SUPPORT
-  if (get_dmx_slot_state(EIWOMISA_UNIVERSE, eiwomisa_dmx_conn_id) ==
-      DMX_NEWVALUES)
+  switch(config.program)
   {
-    for (uint8_t i = 0; i < LED_ALL; i++)
-    {
-      eiwomisa_setpwmfade(i,
-                      get_dmx_channel_slot(EIWOMISA_UNIVERSE,
-                                           EIWOMISA_UNIVERSE_OFFSET + i,
-                                           eiwomisa_dmx_conn_id));
-    }
-  }
+#ifdef EIWOMISA_DMX_SUPPORT
+    case RAINBOW:
+    case RANDOM:
+    case FIRE:
+    case WATER:
+    case RGB:
+      if (get_dmx_slot_state(EIWOMISA_UNIVERSE, eiwomisa_dmx_conn_id) ==
+          DMX_NEWVALUES)
+      {
+        for (uint8_t i = 0; i < LED_W; i++)
+        {
+          eiwomisa_setpwmfade(i,
+                          get_dmx_channel_slot(EIWOMISA_UNIVERSE,
+                                               EIWOMISA_UNIVERSE_OFFSET + i,
+                                               eiwomisa_dmx_conn_id));
+        }
+      }
+      break;
+    case DMX_RECEIVER:
+    case AMBILIGHT:
+      if (get_dmx_slot_state(EIWOMISA_UNIVERSE, eiwomisa_dmx_conn_id) ==
+          DMX_NEWVALUES)
+      {
+        for (uint8_t i = 0; i < LED_ALL; i++)
+        {
+          eiwomisa_setpwm(i,
+                          get_dmx_channel_slot(EIWOMISA_UNIVERSE,
+                                               EIWOMISA_UNIVERSE_OFFSET + i,
+                                               eiwomisa_dmx_conn_id));
+        }
+      }
+      break;
 #endif
+    case WHITE:
+      break;
+    default:
+      break;
+  }
+}
+
+static void 
+eiwomisa_changeProg(const e_programs newprog)
+{
+  if(newprog > WHITE || newprog == config.program)
+    return;
+  
+  switch(newprog)
+  {
+#ifdef EIWOMISA_DMX_SUPPORT
+    case RAINBOW:
+    case RANDOM:
+    case FIRE:
+    case WATER:
+    case RGB:
+      fxslot[EIWOMISA_FXSLOT].active = 1;
+      fxslot[EIWOMISA_FXSLOT].effect = newprog;
+      dmx_fxslot_init(EIWOMISA_FXSLOT);
+      break;
+    case DMX_RECEIVER:
+    case AMBILIGHT:
+      fxslot[EIWOMISA_FXSLOT].active = 0;
+      break;
+#endif
+    case WHITE:
+      break;
+    default:
+      break;
+  }
+  config.program = newprog;
 }
 
 void 
 eiwomisa_doAction(const e_actions action)
 {
+  uint8_t newprog = config.program;
   switch(action)
   {
 #ifndef TEENSY_SUPPORT
@@ -79,34 +155,102 @@ eiwomisa_doAction(const e_actions action)
       eiwomisa_loadFromEEPROM();
       break;
 #endif
+    case PROG_UP:
+      newprog += 2;
+    case PROG_DOWN:
+      newprog--;
+      eiwomisa_changeProg(newprog);
+    case PROGSPEED_UP:
+      fxslot[EIWOMISA_FXSLOT].speed++;
+      break;
+    case PROGSPEED_DOWN:
+      fxslot[EIWOMISA_FXSLOT].speed--;
+      break;
     default:
+      break;
   }
+  if (config.program > WHITE)
+    config.program = WHITE;
 }
 
 #ifndef TEENSY_SUPPORT
 void
 eiwomisa_loadFromEEPROM(void)
 {
-  uint8_t values[LED_ALL];
-  eeprom_restore(eiwomisa_channel_values, values, LED_ALL);
-  eiwomisa_setpwmfade(LED_R, values[LED_ALL]);
-  eiwomisa_setpwmfade(LED_G, values[LED_ALL]);
-  eiwomisa_setpwmfade(LED_B, values[LED_ALL]);
-  eiwomisa_setpwmfade(LED_W, values[LED_ALL]);
+  eiwomisa_config_t temp;
+  eeprom_restore(eiwomisa_config, &temp, sizeof(eiwomisa_config_t));
+  EIWOMISADEBUG("Load eeprom %i,%i,%i,%i\n", temp.values[LED_R],temp.values[LED_G],temp.values[LED_B],temp.values[LED_W]);
+  eiwomisa_setpwmfade(LED_R, temp.values[LED_R]);
+  eiwomisa_setpwmfade(LED_G, temp.values[LED_G]);
+  eiwomisa_setpwmfade(LED_B, temp.values[LED_B]);
+  eiwomisa_setpwmfade(LED_W, temp.values[LED_W]);
+  eiwomisa_changeProg(temp.program);
 }
 
 void
 eiwomisa_storeToEEPROM(void)
 {
-  uint8_t values[LED_ALL] = {eiwomisa_getpwmfade[LED_R], eiwomisa_getpwmfade[LED_G], eiwomisa_getpwmfade[LED_B], eiwomisa_getpwmfade[LED_W]};
-  eeprom_save(eiwomisa_channel_values, values, LED_ALL);
+  config.values[LED_R] = eiwomisa_getpwmfade(LED_R);
+  config.values[LED_G] = eiwomisa_getpwmfade(LED_G);
+  config.values[LED_B] = eiwomisa_getpwmfade(LED_B);
+  config.values[LED_W] = eiwomisa_getpwmfade(LED_W);
+  eeprom_save(eiwomisa_config, &config, sizeof(eiwomisa_config_t));
   eeprom_update_chksum();
 }
+
+int16_t
+parse_cmd_eiwomisa_save(char *cmd, char *output, uint16_t len)
+{
+  eiwomisa_storeToEEPROM();
+  return ECMD_FINAL_OK;
+}
+int16_t
+parse_cmd_eiwomisa_load(char *cmd, char *output, uint16_t len)
+{
+  eiwomisa_loadFromEEPROM();
+  return ECMD_FINAL_OK;
+}
 #endif
+
+int16_t
+parse_cmd_eiwomisa_prog(char *cmd, char *output, const uint16_t len)
+{
+  if (cmd[0])
+  {
+    eiwomisa_changeProg (atoi(cmd));
+    return ECMD_FINAL_OK;
+  }
+  else
+  {
+    itoa(config.program, output, 10);
+    return ECMD_FINAL(strlen(output));
+  }
+}
+
+int16_t
+parse_cmd_eiwomisa_prog_speed(char *cmd, char *output, const uint16_t len)
+{
+  if (cmd[0])
+  {
+    fxslot[EIWOMISA_FXSLOT].speed = atoi(cmd);
+    return ECMD_FINAL_OK;
+  }
+  else
+  {
+    itoa(fxslot[EIWOMISA_FXSLOT].speed, output, 10);
+    return ECMD_FINAL(strlen(output));
+  }
+}
 
 /*
   -- Ethersex META --
   header(services/eiwomisa/eiwomisa.h)
   init(eiwomisa_init)
-  mainloop(eiwomisa_periodic())
+  mainloop(eiwomisa_periodic)
+  ecmd_feature(eiwomisa_prog_speed, "eiwomisa prog speed", , get/set actual programspeed)
+  ecmd_feature(eiwomisa_prog, "eiwomisa prog", , get/set actual program)
+  ecmd_ifndef(TEENSY_SUPPORT)
+    ecmd_feature(eiwomisa_save, "eiwomisa save", , write channels to EEPROM)
+    ecmd_feature(eiwomisa_load, "eiwomisa load", , write channels to EEPROM)
+  ecmd_endif()
 */

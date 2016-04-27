@@ -1,6 +1,6 @@
 dep_bool_menu "Eiwomisa Module" EIWOMISA_SUPPORT $ARCH_AVR $TCP_SUPPORT
 
-    if [ "$MQTT_SUPPORT" = "y" && "$MQTT_STATIC_CONF" = "y" ]; then
+    if [ "$MQTT_SUPPORT" = "y" ] && [ "$MQTT_STATIC_CONF" = "y" ]; then
       comment  '----- MQTT -----'
       dep_bool 'MQTT Support' EIWOMISA_MQTT_SUPPORT $MQTT_SUPPORT $MQTT_STATIC_CONF $EIWOMISA_SUPPORT
     else
@@ -34,6 +34,7 @@ dep_bool_menu "Eiwomisa Module" EIWOMISA_SUPPORT $ARCH_AVR $TCP_SUPPORT
       dep_bool 'DMX Support' EIWOMISA_DMX_SUPPORT $DMX_STORAGE_SUPPORT
       int "DMX Universe" EIWOMISA_UNIVERSE 1
       int "Offset in Universe" EIWOMISA_UNIVERSE_OFFSET 0
+      int "DMX FX Slotnumber" EIWOMISA_FXSLOT 0
     else
       comment  '----- DMX not available (please enable DMX Storage) -----'
     fi
