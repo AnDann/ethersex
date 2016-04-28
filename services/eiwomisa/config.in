@@ -14,6 +14,7 @@ dep_bool_menu "Eiwomisa Module" EIWOMISA_SUPPORT $ARCH_AVR $TCP_SUPPORT
       if [ "$STELLA_SUPPORT" = "y" ] || [ "$HD44780_BACKLIGHT_SUPPORT" = "y" ]; then
         dep_bool "Use HD44780 Backlight" EIWOMISA_HD44780_BACKLIGHT $HD44780_BACKLIGHT_SUPPORT $EIWOMISA_TTY_SUPPORT
         dep_bool "Use Stella for LCD Backlight" EIWOMISA_STELLA_BACKLIGHT $STELLA_SUPPORT $EIWOMISA_TTY_SUPPORT
+        int "Backlight Stella Channel" EIWOMISA_STELLA_CHANNEL 0
         int "Backlight Timeout (s)" EIWOMISA_BACKLIGHT_TIMEOUT 30
       else
         comment  '----- Backlight not available (please enable HD44780 Backlight or Stella) -----'

@@ -33,6 +33,7 @@ typedef enum e_actions
   PROG_DOWN,
   PROGSPEED_UP,
   PROGSPEED_DOWN,
+  PROG_PLAYPAUSE,
   WHITE_UP,
   WHITE_DOWN,
   WHITE_TOGGLE,
@@ -60,12 +61,21 @@ typedef enum e_programs
   DMX_RECEIVER,
   AMBILIGHT,
 #endif
-  WHITE
+  WHITE,
+  COUNT_PROGRAMS
 } e_programs;
+
+typedef enum e_whitedim
+{
+  OFF,
+  ON,
+  UP,
+  DOWN
+} e_whitedim;
 
 typedef struct eiwomisa_config_t
 {
-  uint8_t values[LED_ALL];
+  e_whitedim whitedim[COUNT_PROGRAMS];
   e_programs program;
 } eiwomisa_config_t;
 
@@ -74,12 +84,15 @@ extern void eiwomisa_tty_refresh();
 #endif
 
 void eiwomisa_init();
-void eiwomisa_periodic();
 void eiwomisa_doAction(const e_actions action);
 void eiwomisa_setProg(const e_programs newprog);
 e_programs eiwomisa_getProg();
+e_whitedim eiwomisa_getWhiteStatus();
 void eiwomisa_setProgSpeed(const uint16_t newspeed);
 uint16_t eiwomisa_getProgSpeed();
+
+void eiwomisa_periodic();
+void eiwomisa_whitedim()
 
 #ifndef TEENSY_SUPPORT
 void eiwomisa_loadFromEEPROM(void);
