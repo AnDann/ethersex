@@ -40,7 +40,7 @@
 uint8_t eiwomisa_dmx_conn_id;
 #endif
 
-static eiwomisa_config_t config; 
+static eiwomisa_config_t config;
 
 void
 eiwomisa_init()
@@ -108,12 +108,12 @@ eiwomisa_periodic()
   }
 }
 
-static void 
-eiwomisa_changeProg(const e_programs newprog)
+void
+eiwomisa_setProg(const e_programs newprog)
 {
   if(newprog > WHITE || newprog == config.program)
     return;
-  
+
   switch(newprog)
   {
 #ifdef EIWOMISA_DMX_SUPPORT
@@ -139,10 +139,32 @@ eiwomisa_changeProg(const e_programs newprog)
   config.program = newprog;
 }
 
-void 
+e_programs
+eiwomisa_getProg()
+{
+  return config.program;
+}
+
+uint16_t
+eiwomisa_getProgSpeed()
+{
+  return fxslot[EIWOMISA_FXSLOT].speed;
+}
+
+void
+eiwomisa_setProgSpeed(uint16_t newspeed)
+{
+  fxslot[EIWOMISA_FXSLOT].speed = newspeed;
+}
+
+void
 eiwomisa_doAction(const e_actions action)
 {
   uint8_t newprog = config.program;
+  static uint8_t saveWhite;
+#ifdef EIWOMISA_TTY_SUPPORT
+  eiwomisa_tty_refresh();
+#endif
   switch(action)
   {
 #ifndef TEENSY_SUPPORT
@@ -157,18 +179,31 @@ eiwomisa_doAction(const e_actions action)
       newprog += 2;
     case PROG_DOWN:
       newprog--;
-      eiwomisa_changeProg(newprog);
+      eiwomisa_setProg(newprog);
     case PROGSPEED_UP:
       fxslot[EIWOMISA_FXSLOT].speed++;
       break;
     case PROGSPEED_DOWN:
       fxslot[EIWOMISA_FXSLOT].speed--;
       break;
+    case WHITE_UP:
+      eiwomisa_setpwmfade(LED_W, eiwomisa_getpwmfade(LED_W) + 1);
+      break;
+    case WHITE_DOWN:
+      eiwomisa_setpwmfade(LED_W, eiwomisa_getpwmfade(LED_W) - 1);
+      break;
+    case WHITE_TOGGLE:
+      if (eiwomisa_getpwmfade(LED_W))
+      {
+        saveWhite = eiwomisa_getpwmfade(LED_W);
+        eiwomisa_setpwmfade(LED_W, 0);
+      }
+      else
+        eiwomisa_setpwmfade(LED_W, saveWhite);
+      break;
     default:
       break;
   }
-  if (config.program > WHITE)
-    config.program = WHITE;
 }
 
 #ifndef TEENSY_SUPPORT
@@ -182,7 +217,7 @@ eiwomisa_loadFromEEPROM(void)
   eiwomisa_setpwmfade(LED_G, temp.values[LED_G]);
   eiwomisa_setpwmfade(LED_B, temp.values[LED_B]);
   eiwomisa_setpwmfade(LED_W, temp.values[LED_W]);
-  eiwomisa_changeProg(temp.program);
+  eiwomisa_setProg(temp.program);
 }
 
 void
@@ -201,6 +236,6 @@ eiwomisa_storeToEEPROM(void)
 /*
   -- Ethersex META --
   header(services/eiwomisa/eiwomisa.h)
-  init(eiwomisa_init)
+  startup(eiwomisa_init)
   mainloop(eiwomisa_periodic)
 */

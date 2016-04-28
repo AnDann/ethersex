@@ -26,21 +26,21 @@ typedef enum e_leds
 { LED_R=0, LED_G, LED_B, LED_W, LED_ALL } e_leds;
 
 typedef enum e_actions
-{ 
+{
   SAVE,
-  LOAD, 
-  PROG_UP, 
-  PROG_DOWN, 
-  PROGSPEED_UP, 
-  PROGSPEED_DOWN, 
-  WHITE_UP, 
-  WHITE_DOWN, 
-  WHITE_TOOGLE, 
-  NONE 
+  LOAD,
+  PROG_UP,
+  PROG_DOWN,
+  PROGSPEED_UP,
+  PROGSPEED_DOWN,
+  WHITE_UP,
+  WHITE_DOWN,
+  WHITE_TOGGLE,
+  NONE
 } e_actions;
 
 typedef enum e_programs
-{ 
+{
 #ifdef EIWOMISA_DMX_SUPPORT
 #ifdef DMX_FX_RAINBOW
   RAINBOW,
@@ -69,9 +69,17 @@ typedef struct eiwomisa_config_t
   e_programs program;
 } eiwomisa_config_t;
 
+#ifdef EIWOMISA_TTY_SUPPORT
+extern void eiwomisa_tty_refresh();
+#endif
+
 void eiwomisa_init();
 void eiwomisa_periodic();
 void eiwomisa_doAction(const e_actions action);
+void eiwomisa_setProg(const e_programs newprog);
+e_programs eiwomisa_getProg();
+void eiwomisa_setProgSpeed(const uint16_t newspeed);
+uint16_t eiwomisa_getProgSpeed();
 
 #ifndef TEENSY_SUPPORT
 void eiwomisa_loadFromEEPROM(void);

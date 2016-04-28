@@ -21,49 +21,82 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <avr/pgmspace.h>
 
 #include "config.h"
 
-#include "hardware/input/buttons/buttons.h"
 #include "eiwomisa.h"
-#include "eiwomisa_button.h"
+#include "eiwomisa_tty.h"
+#include "core/tty/tty.h"
 
-void
-eiwomisa_button_init()
-{
-  hook_buttons_input_register(eiwomisa_button_handler);
-}
+#ifdef EIWOMISA_HD44780_BACKLIGHT
+#include "hardware/lcd/hd44780.h"
+static uint16_t blcounter;
+#endif
 
-void
-eiwomisa_button_handler(buttons_ButtonsType button, uint8_t status)
+WINDOW *wmain, *wvalue;
+static uint8_t refresh;
+
+static const char str1[] PROGMEM = "Rainbow";
+static const char str2[] PROGMEM = "Random";
+static const char str3[] PROGMEM = "Fire";
+static const char str4[] PROGMEM = "Water";
+static const char str5[] PROGMEM = "RGB";
+static const char str6[] PROGMEM = "DMX-Receiver";
+static const char str7[] PROGMEM = "Ambilight";
+static const char str8[] PROGMEM = "White";
+
+static const char * const program_names[] PROGMEM = {str1,str2,str3,str4,str5,str6,str7,str8};
+
+#ifdef EIWOMISA_HD44780_BACKLIGHT
+void eiwomisa_backlight_periodic()
 {
-  if(status == BUTTON_RELEASE)
-    return;
-  switch(button)
+  if(blcounter)
   {
-    case BTN_UP:
-      eiwomisa_doAction(WHITE_UP);
-      break;
-    case BTN_DOWN:
-      eiwomisa_doAction(WHITE_DOWN);
-      break;
-    case BTN_LEFT:
-      eiwomisa_doAction(PROG_DOWN);
-      break;
-    case BTN_RIGHT:
-      eiwomisa_doAction(PROG_UP);
-      break;
-    case BTN_FIRE:
-      break;
-    case BTN_FIRE2:
-      eiwomisa_doAction(SAVE);
-      break;
+    if(--blcounter == 0)
+    hd44780_backlight(0);
   }
 }
+#endif
 
+
+void eiwomisa_tty_refresh()
+{
+#ifdef EIWOMISA_HD44780_BACKLIGHT
+  hd44780_backlight(1);
+  blcounter = EIWOMISA_BACKLIGHT_TIMEOUT;
+#endif
+  refresh=1;
+}
+
+
+void eiwomisa_tty_init()
+{
+#ifdef EIWOMISA_HD44780_BACKLIGHT
+  //Switch on backlight
+  eiwomisa_tty_refresh();
+#endif
+  initscr();
+  wmain = subwin(curscr, 1, 16,0 ,0);
+  wvalue = subwin(curscr, 1, 16,1 ,0);
+}
+
+void eiwomisa_tty_periodic()
+{
+  if(refresh)
+  {
+    wclear(wmain);
+    waddstr_P(wmain, (const char*)pgm_read_word(&(program_names[eiwomisa_getProg()])));
+  }
+  wclear(wvalue);
+  wprintw_P(wvalue, PSTR("%u %u %u %u"), eiwomisa_getpwmfade(LED_R), eiwomisa_getpwmfade(LED_G), eiwomisa_getpwmfade(LED_B), eiwomisa_getpwmfade(LED_W));
+  refresh = 0;
+}
 
 /*
   -- Ethersex META --
-  header(services/eiwomisa/eiwomisa_button.h)
-  init(eiwomisa_button_init)
+  header(services/eiwomisa/eiwomisa_tty.h)
+  init(eiwomisa_tty_init)
+  millitimer(1000, eiwomisa_backlight_periodic)
+  millitimer(100, eiwomisa_tty_periodic)
 */

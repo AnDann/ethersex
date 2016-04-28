@@ -33,6 +33,6 @@ int16_t parse_cmd_eiwomisa_load(char *cmd, char *output, uint16_t len);
 int16_t parse_cmd_eiwomisa_pwm_fade_command(char *cmd, char *output,
                                             const uint16_t len);
 int16_t parse_cmd_eiwomisa_pwm_command(char *cmd, char *output,const uint16_t len);
-int16_t parse_cmd_eiwomisa_pwm_delay_command(char *cmd, char *output, const uint16_t len)
+int16_t parse_cmd_eiwomisa_pwm_delay_command(char *cmd, char *output, const uint16_t len);
 
 #endif /* HAVE_EIWOMISA_ECMD_H */

@@ -23,5 +23,6 @@
 #define HAVE_EIWOMISA_BUTTON_H
  
 void eiwomisa_button_init();
+void eiwomisa_button_handler(buttons_ButtonsType button, uint8_t status);
 
 #endif /* HAVE_EIWOMISA_BUTTON_H */

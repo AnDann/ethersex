@@ -39,26 +39,29 @@ eiwomisa_button_handler(buttons_ButtonsType button, uint8_t status)
 {
   if(status == BUTTON_RELEASE)
     return;
+  e_actions action;
   switch(button)
   {
     case BTN_UP:
-      eiwomisa_doAction(WHITE_UP);
+      action = WHITE_UP;
       break;
     case BTN_DOWN:
-      eiwomisa_doAction(WHITE_DOWN);
+      action = WHITE_DOWN;
       break;
     case BTN_LEFT:
-      eiwomisa_doAction(PROG_DOWN);
+      action = PROG_DOWN;
       break;
     case BTN_RIGHT:
-      eiwomisa_doAction(PROG_UP);
+      action = PROG_UP;
       break;
     case BTN_FIRE:
+      action = WHITE_TOGGLE;
       break;
     case BTN_FIRE2:
-      eiwomisa_doAction(SAVE);
+      action = SAVE;
       break;
   }
+  eiwomisa_doAction(action);
 }
 
 

@@ -18,7 +18,12 @@
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
  */
- 
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <avr/pgmspace.h>
+
 #include "config.h"
 
 #include "eiwomisa_pwm.h"
@@ -32,6 +37,7 @@ parse_cmd_eiwomisa_save(char *cmd, char *output, uint16_t len)
   eiwomisa_storeToEEPROM();
   return ECMD_FINAL_OK;
 }
+
 int16_t
 parse_cmd_eiwomisa_load(char *cmd, char *output, uint16_t len)
 {
@@ -45,12 +51,12 @@ parse_cmd_eiwomisa_prog(char *cmd, char *output, const uint16_t len)
 {
   if (cmd[0])
   {
-    eiwomisa_changeProg (atoi(cmd));
+    eiwomisa_setProg (atoi(cmd));
     return ECMD_FINAL_OK;
   }
   else
   {
-    itoa(config.program, output, 10);
+    itoa(eiwomisa_getProg(), output, 10);
     return ECMD_FINAL(strlen(output));
   }
 }
@@ -60,12 +66,12 @@ parse_cmd_eiwomisa_prog_speed(char *cmd, char *output, const uint16_t len)
 {
   if (cmd[0])
   {
-    fxslot[EIWOMISA_FXSLOT].speed = atoi(cmd);
+    eiwomisa_setProgSpeed(atoi(cmd));
     return ECMD_FINAL_OK;
   }
   else
   {
-    itoa(fxslot[EIWOMISA_FXSLOT].speed, output, 10);
+    itoa(eiwomisa_getProgSpeed(), output, 10);
     return ECMD_FINAL(strlen(output));
   }
 }
@@ -79,10 +85,9 @@ parse_cmd_eiwomisa_pwm_fade_command(char *cmd, char *output, const uint16_t len)
     e_leds i;
     for (i = 0; i < LED_ALL; i++)
     {
-      PWMDEBUG("Channel %i=%i\n", i, eiwomisa_getpwmfade(i));
+      output += snprintf_P(output, len, PSTR("%i "), eiwomisa_getpwmfade(i));
     }
-
-    return ECMD_FINAL_OK;
+    return ECMD_FINAL(strlen(output));
   }
   e_leds channel = atoi(cmd + 1);
   if (cmd[2] == '\0')
@@ -107,10 +112,9 @@ parse_cmd_eiwomisa_pwm_command(char *cmd, char *output, const uint16_t len)
     e_leds i;
     for (i = 0; i < LED_ALL; i++)
     {
-      PWMDEBUG("Channel %i=%i\n", i, eiwomisa_getpwm(i));
+      output += snprintf_P(output, len, PSTR("%i "), eiwomisa_getpwm(i));
     }
-
-    return ECMD_FINAL_OK;
+    return ECMD_FINAL(strlen(output));
   }
   e_leds channel = atoi(cmd + 1);
   if (cmd[2] == '\0')
