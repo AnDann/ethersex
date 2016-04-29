@@ -40,13 +40,10 @@
 #include "services/stella/stella.h"
 #endif
 
-#if defined (EIWOMISA_HD44780_BACKLIGHT) || defined (EIWOMISA_STELLA_BACKLIGHT)
-static uint16_t blcounter;
-#endif
-
 WINDOW *wprog, *wwhite, *wstatus, *wrgb;
 static uint8_t refresh;
 
+#ifdef EIWOMISA_DMX_SUPPORT
 static const char str1[] PROGMEM = "Rainbow";
 static const char str2[] PROGMEM = "Random";
 static const char str3[] PROGMEM = "Fire";
@@ -54,25 +51,41 @@ static const char str4[] PROGMEM = "Water";
 static const char str5[] PROGMEM = "RGB";
 static const char str6[] PROGMEM = "DMX-Receiver";
 static const char str7[] PROGMEM = "Ambilight";
+#endif
 static const char str8[] PROGMEM = "White";
 
-static const char * const program_names[] PROGMEM = {str1,str2,str3,str4,str5,str6,str7,str8};
+static const char * const program_names[] PROGMEM = {
+#ifdef EIWOMISA_DMX_SUPPORT
+  str1,
+  str2,
+  str3,
+  str4,
+  str5,
+  str6,
+  str7,
+#endif
+  str8
+  };
 
 #if defined (EIWOMISA_HD44780_BACKLIGHT) || defined (EIWOMISA_STELLA_BACKLIGHT)
+static uint16_t blcounter;
+
 void eiwomisa_backlight_periodic()
 {
   if(blcounter)
   {
     if(--blcounter == 0)
+    {
 #ifdef EIWOMISA_HD44780_BACKLIGHT
     hd44780_backlight(0);
 #endif
 #ifdef EIWOMISA_STELLA_BACKLIGHT
     stella_setValue(STELLA_SET_FADE, EIWOMISA_STELLA_CHANNEL, 0);
 #endif
+    }
   }
 }
-#endif
+#endif /* EIWOMISA_HD44780_BACKLIGHT or EIWOMISA_STELLA_BACKLIGHT */
 
 
 void eiwomisa_tty_refresh()
@@ -85,42 +98,39 @@ void eiwomisa_tty_refresh()
   stella_setValue(STELLA_SET_FADE, EIWOMISA_STELLA_CHANNEL, 255);
 #endif
   blcounter = EIWOMISA_BACKLIGHT_TIMEOUT;
-#endif
+#endif /* EIWOMISA_HD44780_BACKLIGHT or EIWOMISA_STELLA_BACKLIGHT */
   refresh=1;
 }
 
 
 void eiwomisa_tty_init()
 {
-  eiwomisa_tty_refresh();
   initscr();
   wprog = subwin(curscr, 1, 12,0 ,0);
-  wwhite = subwin(curscr, 1, 2,0 ,11);
-  wstatus = subwin(curscr, 1, 2,0 ,13);
+  wwhite = subwin(curscr, 1, 2,0 ,14);
+  wstatus = subwin(curscr, 1, 2,0 ,12);
   wrgb = subwin(curscr, 1, 16,1 ,0);
-  
-#ifdef EIWOMISA_STELLA_BACKLIGHT
-  stella_setFadestep(10);
-#endif
-
+ 
 #ifdef HD44780_SUPPORT
-  uint8_t arrow_up[] = {0x4,0xa,0x1f,0x0,0x0,0x0,0x0}
-  uint8_t arrow_down[] = {0x0,0x0,0x0,0x0,0x1f,0xa,0x4}
+  uint8_t arrow_up[] = {0x4,0xa,0x1f,0x0,0x0,0x0,0x0,0x0};
+  uint8_t arrow_down[] = {0x0,0x0,0x0,0x0,0x1f,0xa,0x4,0x0};
   hd44780_define_char(ARROW_UP, arrow_up,1);
   hd44780_define_char(ARROW_DOWN, arrow_down,1);
 #ifdef HD44780_MULTIENSUPPORT
   hd44780_define_char(ARROW_UP, arrow_up,2);
   hd44780_define_char(ARROW_DOWN, arrow_down,2);
 #endif
-#endif
+#endif  /*  HD44780_SUPPORT */
+
+  eiwomisa_tty_refresh();
 }
 
 void eiwomisa_tty_periodic()
 {
   if(refresh)
   {
-    wclear(wmain);
-    waddstr_P(wmain, (const char*)pgm_read_word(&(program_names[eiwomisa_getProg()])));
+    wclear(wprog);
+    waddstr_P(wprog, (const char*)pgm_read_word(&(program_names[eiwomisa_getProg()])));
     wclear(wwhite);
     uint8_t whitestatus = eiwomisa_getWhiteStatus();
     if(whitestatus)
@@ -136,7 +146,7 @@ void eiwomisa_tty_periodic()
     }
   }
   wclear(wrgb);
-  wprintw_P(wrgb, PSTR("%u %u %u"), eiwomisa_getpwmfade(LED_R), eiwomisa_getpwmfade(LED_G), eiwomisa_getpwmfade(LED_B));
+  wprintw_P(wrgb, PSTR("%3u %3u %3u %3u"), eiwomisa_getpwmfade(LED_R), eiwomisa_getpwmfade(LED_G), eiwomisa_getpwmfade(LED_B), eiwomisa_getpwmfade(LED_W));
   refresh = 0;
 }
 

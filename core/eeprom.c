@@ -129,8 +129,7 @@ eeprom_init (void)
 #endif
 
 #ifdef EIWOMISA_SUPPORT
-  eiwomisa_config_t temp = { .values = { 0 },
-                  .program = 0};
+  eiwomisa_config_t temp = { .program = 0};
   eeprom_save (eiwomisa_config, &temp, sizeof(eiwomisa_config_t));
 #endif
 

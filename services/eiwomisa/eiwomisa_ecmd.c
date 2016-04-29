@@ -61,6 +61,7 @@ parse_cmd_eiwomisa_prog(char *cmd, char *output, const uint16_t len)
   }
 }
 
+#ifdef EIWOMISA_DMX_SUPPORT
 int16_t
 parse_cmd_eiwomisa_prog_speed(char *cmd, char *output, const uint16_t len)
 {
@@ -75,6 +76,7 @@ parse_cmd_eiwomisa_prog_speed(char *cmd, char *output, const uint16_t len)
     return ECMD_FINAL(strlen(output));
   }
 }
+#endif
 
 // ECMD:  set/get fading for channel
 int16_t
@@ -149,7 +151,9 @@ parse_cmd_eiwomisa_pwm_delay_command(char *cmd, char *output, const uint16_t len
   -- Ethersex META --
   header(services/eiwomisa/eiwomisa_ecmd.h)
   block([[EIWOMISA]])
-  ecmd_feature(eiwomisa_prog_speed, "eiwomisa prog speed", , get/set actual programspeed)
+  ecmd_ifdef(EIWOMISA_DMX_SUPPORT)
+    ecmd_feature(eiwomisa_prog_speed, "eiwomisa prog speed", , get/set actual programspeed)
+  ecmd_endif()
   ecmd_feature(eiwomisa_prog, "eiwomisa prog", , get/set actual program)
   ecmd_ifndef(TEENSY_SUPPORT)
     ecmd_feature(eiwomisa_save, "eiwomisa save", , write channels to EEPROM)

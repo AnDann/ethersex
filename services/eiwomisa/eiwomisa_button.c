@@ -39,7 +39,7 @@ eiwomisa_button_handler(buttons_ButtonsType button, uint8_t status)
 {
   if(status == BUTTON_RELEASE)
     return;
-  e_actions action;
+  e_actions action=NONE;
   switch(button)
   {
     case BTN_UP:
@@ -58,7 +58,7 @@ eiwomisa_button_handler(buttons_ButtonsType button, uint8_t status)
       action = WHITE_TOGGLE;
       break;
     case BTN_FIRE2:
-      action = SAVE;
+      action = PROG_PLAYPAUSE;
       break;
   }
   eiwomisa_doAction(action);
