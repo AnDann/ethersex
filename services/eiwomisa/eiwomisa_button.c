@@ -28,6 +28,13 @@
 #include "eiwomisa.h"
 #include "eiwomisa_button.h"
 
+#ifdef DEBUG_EIWOMISA_BUTTON
+#include "core/debug.h"
+#define EIWOMISA_BUTTON_DEBUG(a...)  debug_printf("[button] " a)
+#else
+#define EIWOMISA_BUTTON_DEBUG(a...)
+#endif
+
 void
 eiwomisa_button_init()
 {
@@ -37,6 +44,7 @@ eiwomisa_button_init()
 void
 eiwomisa_button_handler(buttons_ButtonsType button, uint8_t status)
 {
+  EIWOMISA_BUTTON_DEBUG("Bt=%u St=%u\n", button, status);
   if(status == BUTTON_RELEASE)
     return;
   e_actions action=NONE;
@@ -68,5 +76,5 @@ eiwomisa_button_handler(buttons_ButtonsType button, uint8_t status)
 /*
   -- Ethersex META --
   header(services/eiwomisa/eiwomisa_button.h)
-  init(eiwomisa_button_init)
+  startup(eiwomisa_button_init)
 */

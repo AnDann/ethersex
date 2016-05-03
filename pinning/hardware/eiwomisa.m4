@@ -13,7 +13,7 @@ pin(BTN_LEFT, PC3, INPUT)
 pin(BTN_FIRE, PC2, INPUT)
 pin(BTN_FIRE2, PC1, INPUT)
 
-#define BUTTONS_COUNT 8
+#define BUTTONS_COUNT 6
 
 #define BUTTONS_CONFIG(_x) \
 _x(BTN_UP)\

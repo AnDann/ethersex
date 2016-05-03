@@ -29,8 +29,21 @@
 #include "eiwomisa_tty.h"
 #include "core/tty/tty.h"
 
-#define ARROW_UP 0
-#define ARROW_DOWN 1
+#ifdef DEBUG_EIWOMISA_TTY
+#include "core/debug.h"
+#define EIWOMISA_TTY_DEBUG(a...)  debug_printf("[tty] " a)
+#else
+#define EIWOMISA_TTY_DEBUG(a...)
+#endif
+
+#define ARROW_UP          0
+#define BYTES_ARROW_UP    0x4,0xa,0x1f,0x0,0x0,0x0,0x0,0x0
+#define ARROW_DOWN        1
+#define BYTES_ARROW_DOWN  0x0,0x0,0x0,0x0,0x1f,0xa,0x4,0x0
+#define BYTES_PLAY        0b11000,0b11100,0b11110,0b11111,0b11110,0b11100,0b11000,0b00000
+#define PLAY              2
+#define BYTES_PAUSE       0b11011,0b11011,0b11011,0b11011,0b11011,0b11011,0b11011,0b00000
+#define PAUSE             3
 
 #ifdef EIWOMISA_HD44780_BACKLIGHT
 #include "hardware/lcd/hd44780.h"
@@ -49,7 +62,7 @@ static const char str2[] PROGMEM = "Random";
 static const char str3[] PROGMEM = "Fire";
 static const char str4[] PROGMEM = "Water";
 static const char str5[] PROGMEM = "RGB";
-static const char str6[] PROGMEM = "DMX-Receiver";
+static const char str6[] PROGMEM = "DMX";
 static const char str7[] PROGMEM = "Ambilight";
 #endif
 static const char str8[] PROGMEM = "White";
@@ -69,22 +82,6 @@ static const char * const program_names[] PROGMEM = {
 
 #if defined (EIWOMISA_HD44780_BACKLIGHT) || defined (EIWOMISA_STELLA_BACKLIGHT)
 static uint16_t blcounter;
-
-void eiwomisa_backlight_periodic()
-{
-  if(blcounter)
-  {
-    if(--blcounter == 0)
-    {
-#ifdef EIWOMISA_HD44780_BACKLIGHT
-    hd44780_backlight(0);
-#endif
-#ifdef EIWOMISA_STELLA_BACKLIGHT
-    stella_setValue(STELLA_SET_FADE, EIWOMISA_STELLA_CHANNEL, 0);
-#endif
-    }
-  }
-}
 #endif /* EIWOMISA_HD44780_BACKLIGHT or EIWOMISA_STELLA_BACKLIGHT */
 
 
@@ -97,7 +94,7 @@ void eiwomisa_tty_refresh()
 #ifdef EIWOMISA_STELLA_BACKLIGHT
   stella_setValue(STELLA_SET_FADE, EIWOMISA_STELLA_CHANNEL, 255);
 #endif
-  blcounter = EIWOMISA_BACKLIGHT_TIMEOUT;
+  blcounter = EIWOMISA_BACKLIGHT_TIMEOUT * 10;
 #endif /* EIWOMISA_HD44780_BACKLIGHT or EIWOMISA_STELLA_BACKLIGHT */
   refresh=1;
 }
@@ -105,28 +102,50 @@ void eiwomisa_tty_refresh()
 
 void eiwomisa_tty_init()
 {
+
+  eiwomisa_tty_refresh();
+
   initscr();
-  wprog = subwin(curscr, 1, 12,0 ,0);
+  wprog = subwin(curscr, 1, 11,0 ,0);
   wwhite = subwin(curscr, 1, 2,0 ,14);
-  wstatus = subwin(curscr, 1, 2,0 ,12);
+  wstatus = subwin(curscr, 1, 3,0 ,11);
   wrgb = subwin(curscr, 1, 16,1 ,0);
  
 #ifdef HD44780_SUPPORT
-  uint8_t arrow_up[] = {0x4,0xa,0x1f,0x0,0x0,0x0,0x0,0x0};
-  uint8_t arrow_down[] = {0x0,0x0,0x0,0x0,0x1f,0xa,0x4,0x0};
+  uint8_t arrow_up[] = {BYTES_ARROW_UP};
+  uint8_t arrow_down[] = {BYTES_ARROW_DOWN};
+  uint8_t play[] = {BYTES_PLAY};
+  uint8_t pause[] = {BYTES_PAUSE};
   hd44780_define_char(ARROW_UP, arrow_up,1);
   hd44780_define_char(ARROW_DOWN, arrow_down,1);
+  hd44780_define_char(PLAY, play,1);
+  hd44780_define_char(PAUSE, pause,1);
 #ifdef HD44780_MULTIENSUPPORT
   hd44780_define_char(ARROW_UP, arrow_up,2);
   hd44780_define_char(ARROW_DOWN, arrow_down,2);
+  hd44780_define_char(PLAY, play,2);
+  hd44780_define_char(PAUSE, pause,2);
 #endif
 #endif  /*  HD44780_SUPPORT */
-
-  eiwomisa_tty_refresh();
 }
 
 void eiwomisa_tty_periodic()
 {
+#if defined (EIWOMISA_HD44780_BACKLIGHT) || defined (EIWOMISA_STELLA_BACKLIGHT)
+  if(blcounter)
+  {
+    if(--blcounter == 0)
+    {
+#ifdef EIWOMISA_HD44780_BACKLIGHT
+      hd44780_backlight(0);
+#endif
+#ifdef EIWOMISA_STELLA_BACKLIGHT
+      stella_setValue(STELLA_SET_FADE, EIWOMISA_STELLA_CHANNEL, 0);
+#endif
+      EIWOMISA_TTY_DEBUG("Backlight off\n");
+    }
+  }
+#endif /* EIWOMISA_HD44780_BACKLIGHT or EIWOMISA_STELLA_BACKLIGHT */
   if(refresh)
   {
     wclear(wprog);
@@ -144,6 +163,13 @@ void eiwomisa_tty_periodic()
         waddch(wwhite, ARROW_DOWN);
         break;
     }
+    wclear(wstatus);
+    if(eiwomisa_getProgActive())
+      waddch(wstatus, PLAY);
+    else
+      waddch(wstatus, PAUSE);
+    wprintw_P(wstatus, PSTR("%2u"), eiwomisa_getProgSpeed());
+    EIWOMISA_TTY_DEBUG("Refresh Stat=%u Prog=%u Active=%u Speed=%u \n", whitestatus, eiwomisa_getProg(), eiwomisa_getProgActive(), eiwomisa_getProgSpeed());
   }
   wclear(wrgb);
   wprintw_P(wrgb, PSTR("%3u %3u %3u %3u"), eiwomisa_getpwmfade(LED_R), eiwomisa_getpwmfade(LED_G), eiwomisa_getpwmfade(LED_B), eiwomisa_getpwmfade(LED_W));
@@ -153,7 +179,6 @@ void eiwomisa_tty_periodic()
 /*
   -- Ethersex META --
   header(services/eiwomisa/eiwomisa_tty.h)
-  init(eiwomisa_tty_init)
-  millitimer(1000, eiwomisa_backlight_periodic)
+  startup(eiwomisa_tty_init)
   millitimer(100, eiwomisa_tty_periodic)
 */

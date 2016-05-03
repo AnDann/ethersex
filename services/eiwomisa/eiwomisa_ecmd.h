@@ -24,6 +24,7 @@
 
 int16_t parse_cmd_eiwomisa_prog_speed(char *cmd, char *output, const uint16_t len);
 int16_t parse_cmd_eiwomisa_prog(char *cmd, char *output, const uint16_t len);
+int16_t parse_cmd_eiwomisa_action(char *cmd, char *output, const uint16_t len);
 
 #ifndef TEENSY_SUPPORT
 int16_t parse_cmd_eiwomisa_save(char *cmd, char *output, uint16_t len);

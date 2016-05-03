@@ -61,6 +61,20 @@ parse_cmd_eiwomisa_prog(char *cmd, char *output, const uint16_t len)
   }
 }
 
+int16_t
+parse_cmd_eiwomisa_action(char *cmd, char *output, const uint16_t len)
+{
+  if (cmd[0])
+  {
+    eiwomisa_doAction (atoi(cmd));
+    return ECMD_FINAL_OK;
+  }
+  else
+  {
+    return ECMD_ERR_PARSE_ERROR;
+  }
+}
+
 #ifdef EIWOMISA_DMX_SUPPORT
 int16_t
 parse_cmd_eiwomisa_prog_speed(char *cmd, char *output, const uint16_t len)
@@ -155,6 +169,7 @@ parse_cmd_eiwomisa_pwm_delay_command(char *cmd, char *output, const uint16_t len
     ecmd_feature(eiwomisa_prog_speed, "eiwomisa prog speed", , get/set actual programspeed)
   ecmd_endif()
   ecmd_feature(eiwomisa_prog, "eiwomisa prog", , get/set actual program)
+  ecmd_feature(eiwomisa_action, "eiwomisa action", [action_code], do action code)
   ecmd_ifndef(TEENSY_SUPPORT)
     ecmd_feature(eiwomisa_save, "eiwomisa save", , write channels to EEPROM)
     ecmd_feature(eiwomisa_load, "eiwomisa load", , write channels to EEPROM)

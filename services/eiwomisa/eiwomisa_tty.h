@@ -24,7 +24,5 @@
  
 void eiwomisa_tty_init();
 void eiwomisa_tty_periodic();
-#if defined (EIWOMISA_HD44780_BACKLIGHT) || defined (EIWOMISA_STELLA_BACKLIGHT)
-void eiwomisa_backlight_periodic();
-#endif
+
 #endif /* HAVE_EIWOMISA_BUTTON_H */

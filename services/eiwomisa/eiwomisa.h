@@ -75,9 +75,10 @@ typedef enum e_whitedim
 
 typedef struct eiwomisa_config_t
 {
-  e_whitedim whitedim[COUNT_PROGRAMS];
   e_programs program;
-  uint8_t white_values[LED_ALL];
+  e_whitedim whitedim[COUNT_PROGRAMS];
+  uint8_t white_values[COUNT_PROGRAMS];
+  uint8_t white_rgb_values[LED_W];
 } eiwomisa_config_t;
 
 #ifdef EIWOMISA_TTY_SUPPORT
@@ -91,6 +92,7 @@ e_programs eiwomisa_getProg();
 e_whitedim eiwomisa_getWhiteStatus();
 void eiwomisa_setProgSpeed(const uint16_t newspeed);
 uint16_t eiwomisa_getProgSpeed();
+uint8_t eiwomisa_getProgActive();
 
 void eiwomisa_periodic();
 void eiwomisa_whitedim();

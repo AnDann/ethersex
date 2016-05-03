@@ -36,7 +36,7 @@
 
 #ifdef DEBUG_EIWOMISA_PWM
 #include "core/debug.h"
-#define PWMDEBUG(a...)  debug_printf("pwm: " a)
+#define PWMDEBUG(a...)  debug_printf("[pwm] " a)
 #else
 #define PWMDEBUG(a...)
 #endif

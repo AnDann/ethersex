@@ -31,14 +31,15 @@ dep_bool_menu "Eiwomisa Module" EIWOMISA_SUPPORT $ARCH_AVR $TCP_SUPPORT
     fi
       
     dep_bool 'Buttons Input Support' EIWOMISA_BUTTON_SUPPORT $BUTTONS_INPUT_SUPPORT $EIWOMISA_SUPPORT
-    if [ "$DMX_STORAGE_SUPPORT" = "y" ]; then
+    if [ "$DMX_STORAGE_SUPPORT" = "y" ] && [ "$DMX_FXSLOT_SUPPORT" = "y" ]  && [ "$CLOCK_SUPPORT" = "y" ]; then
       comment  '----- DMX -----'
       dep_bool 'DMX Support' EIWOMISA_DMX_SUPPORT $DMX_STORAGE_SUPPORT
       int "DMX Universe" EIWOMISA_UNIVERSE 1
       int "Offset in Universe" EIWOMISA_UNIVERSE_OFFSET 0
       int "DMX FX Slotnumber" EIWOMISA_FXSLOT 0
+      int 'DMX Timeout' EIWOMISA_DMX_TIMEOUT 5
     else
-      comment  '----- DMX not available (please enable DMX Storage) -----'
+      comment  '----- DMX not available (please enable DMX Storage, FX Slots and Clock) -----'
     fi
     
     comment  '----- Output -----'
@@ -47,5 +48,8 @@ dep_bool_menu "Eiwomisa Module" EIWOMISA_SUPPORT $ARCH_AVR $TCP_SUPPORT
     comment  '----- Debug -----'
     dep_bool 'Debug' DEBUG_EIWOMISA $DEBUG
     dep_bool 'Debug PWM' DEBUG_EIWOMISA_PWM $DEBUG
+    dep_bool 'Debug TTY' DEBUG_EIWOMISA_TTY $DEBUG $EIWOMISA_TTY_SUPPORT
+    dep_bool 'Debug Button Input' DEBUG_EIWOMISA_BUTTON $DEBUG $EIWOMISA_BUTTON_SUPPORT
+    dep_bool 'Debug IRMP Input' DEBUG_EIWOMISA_IRMP $DEBUG $EIWOMISA_IRMP_SUPPORT
 
 endmenu
