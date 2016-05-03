@@ -29,9 +29,9 @@ void eiwomisa_pwm_init();
 void eiwomisa_pwm_periodic();
 
 uint8_t eiwomisa_getpwm(const e_leds channel);
-void eiwomisa_setpwm(const e_leds channel,const uint8_t setval);
+void eiwomisa_setpwm(const e_leds channel, const uint8_t setval);
 uint8_t eiwomisa_getpwmfade(const e_leds channel);
-void eiwomisa_setpwmfade(const e_leds channel,const uint8_t setval);
+void eiwomisa_setpwmfade(const e_leds channel, const uint8_t setval);
 uint8_t eiwomisa_getfadeDelay();
 void eiwomisa_setfadeDelay(const uint8_t setval);
 

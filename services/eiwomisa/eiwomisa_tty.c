@@ -67,7 +67,7 @@ static const char str7[] PROGMEM = "Ambilight";
 #endif
 static const char str8[] PROGMEM = "White";
 
-static const char * const program_names[] PROGMEM = {
+static const char *const program_names[] PROGMEM = {
 #ifdef EIWOMISA_DMX_SUPPORT
   str1,
   str2,
@@ -78,14 +78,15 @@ static const char * const program_names[] PROGMEM = {
   str7,
 #endif
   str8
-  };
+};
 
 #if defined (EIWOMISA_HD44780_BACKLIGHT) || defined (EIWOMISA_STELLA_BACKLIGHT)
 static uint16_t blcounter;
 #endif /* EIWOMISA_HD44780_BACKLIGHT or EIWOMISA_STELLA_BACKLIGHT */
 
 
-void eiwomisa_tty_refresh()
+void
+eiwomisa_tty_refresh()
 {
 #if defined (EIWOMISA_HD44780_BACKLIGHT) || defined (EIWOMISA_STELLA_BACKLIGHT)
 #ifdef EIWOMISA_HD44780_BACKLIGHT
@@ -96,45 +97,47 @@ void eiwomisa_tty_refresh()
 #endif
   blcounter = EIWOMISA_BACKLIGHT_TIMEOUT * 10;
 #endif /* EIWOMISA_HD44780_BACKLIGHT or EIWOMISA_STELLA_BACKLIGHT */
-  refresh=1;
+  refresh = 1;
 }
 
 
-void eiwomisa_tty_init()
+void
+eiwomisa_tty_init()
 {
 
   eiwomisa_tty_refresh();
 
   initscr();
-  wprog = subwin(curscr, 1, 11,0 ,0);
-  wwhite = subwin(curscr, 1, 2,0 ,14);
-  wstatus = subwin(curscr, 1, 3,0 ,11);
-  wrgb = subwin(curscr, 1, 16,1 ,0);
- 
+  wprog = subwin(curscr, 1, 11, 0, 0);
+  wwhite = subwin(curscr, 1, 2, 0, 14);
+  wstatus = subwin(curscr, 1, 3, 0, 11);
+  wrgb = subwin(curscr, 1, 16, 1, 0);
+
 #ifdef HD44780_SUPPORT
-  uint8_t arrow_up[] = {BYTES_ARROW_UP};
-  uint8_t arrow_down[] = {BYTES_ARROW_DOWN};
-  uint8_t play[] = {BYTES_PLAY};
-  uint8_t pause[] = {BYTES_PAUSE};
-  hd44780_define_char(ARROW_UP, arrow_up,1);
-  hd44780_define_char(ARROW_DOWN, arrow_down,1);
-  hd44780_define_char(PLAY, play,1);
-  hd44780_define_char(PAUSE, pause,1);
+  uint8_t arrow_up[] = { BYTES_ARROW_UP };
+  uint8_t arrow_down[] = { BYTES_ARROW_DOWN };
+  uint8_t play[] = { BYTES_PLAY };
+  uint8_t pause[] = { BYTES_PAUSE };
+  hd44780_define_char(ARROW_UP, arrow_up, 1);
+  hd44780_define_char(ARROW_DOWN, arrow_down, 1);
+  hd44780_define_char(PLAY, play, 1);
+  hd44780_define_char(PAUSE, pause, 1);
 #ifdef HD44780_MULTIENSUPPORT
-  hd44780_define_char(ARROW_UP, arrow_up,2);
-  hd44780_define_char(ARROW_DOWN, arrow_down,2);
-  hd44780_define_char(PLAY, play,2);
-  hd44780_define_char(PAUSE, pause,2);
+  hd44780_define_char(ARROW_UP, arrow_up, 2);
+  hd44780_define_char(ARROW_DOWN, arrow_down, 2);
+  hd44780_define_char(PLAY, play, 2);
+  hd44780_define_char(PAUSE, pause, 2);
 #endif
-#endif  /*  HD44780_SUPPORT */
+#endif /*  HD44780_SUPPORT */
 }
 
-void eiwomisa_tty_periodic()
+void
+eiwomisa_tty_periodic()
 {
 #if defined (EIWOMISA_HD44780_BACKLIGHT) || defined (EIWOMISA_STELLA_BACKLIGHT)
-  if(blcounter)
+  if (blcounter)
   {
-    if(--blcounter == 0)
+    if (--blcounter == 0)
     {
 #ifdef EIWOMISA_HD44780_BACKLIGHT
       hd44780_backlight(0);
@@ -146,15 +149,17 @@ void eiwomisa_tty_periodic()
     }
   }
 #endif /* EIWOMISA_HD44780_BACKLIGHT or EIWOMISA_STELLA_BACKLIGHT */
-  if(refresh)
+  if (refresh)
   {
     wclear(wprog);
-    waddstr_P(wprog, (const char*)pgm_read_word(&(program_names[eiwomisa_getProg()])));
+    waddstr_P(wprog,
+              (const char *)
+              pgm_read_word(&(program_names[eiwomisa_getProg()])));
     wclear(wwhite);
     uint8_t whitestatus = eiwomisa_getWhiteStatus();
-    if(whitestatus)
+    if (whitestatus)
       waddch(wwhite, 'W');
-    switch(whitestatus)
+    switch (whitestatus)
     {
       case UP:
         waddch(wwhite, ARROW_UP);
@@ -164,15 +169,19 @@ void eiwomisa_tty_periodic()
         break;
     }
     wclear(wstatus);
-    if(eiwomisa_getProgActive())
+    if (eiwomisa_getProgActive())
       waddch(wstatus, PLAY);
     else
       waddch(wstatus, PAUSE);
     wprintw_P(wstatus, PSTR("%2u"), eiwomisa_getProgSpeed());
-    EIWOMISA_TTY_DEBUG("Refresh Stat=%u Prog=%u Active=%u Speed=%u \n", whitestatus, eiwomisa_getProg(), eiwomisa_getProgActive(), eiwomisa_getProgSpeed());
+    EIWOMISA_TTY_DEBUG("Refresh Stat=%u Prog=%u Active=%u Speed=%u \n",
+                       whitestatus, eiwomisa_getProg(),
+                       eiwomisa_getProgActive(), eiwomisa_getProgSpeed());
   }
   wclear(wrgb);
-  wprintw_P(wrgb, PSTR("%3u %3u %3u %3u"), eiwomisa_getpwmfade(LED_R), eiwomisa_getpwmfade(LED_G), eiwomisa_getpwmfade(LED_B), eiwomisa_getpwmfade(LED_W));
+  wprintw_P(wrgb, PSTR("%3u %3u %3u %3u"), eiwomisa_getpwmfade(LED_R),
+            eiwomisa_getpwmfade(LED_G), eiwomisa_getpwmfade(LED_B),
+            eiwomisa_getpwmfade(LED_W));
   refresh = 0;
 }
 

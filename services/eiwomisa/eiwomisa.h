@@ -23,7 +23,7 @@
 #define HAVE_EIWOMISA_H
 
 typedef enum e_leds
-{ LED_R=0, LED_G, LED_B, LED_W, LED_ALL } e_leds;
+{ LED_R = 0, LED_G, LED_B, LED_W, LED_ALL } e_leds;
 
 typedef enum e_actions
 {
@@ -67,7 +67,7 @@ typedef enum e_programs
 
 typedef enum e_whitedim
 {
-  OFF=0,
+  OFF = 0,
   ON,
   UP,
   DOWN

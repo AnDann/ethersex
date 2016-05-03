@@ -45,10 +45,10 @@ void
 eiwomisa_button_handler(buttons_ButtonsType button, uint8_t status)
 {
   EIWOMISA_BUTTON_DEBUG("Bt=%u St=%u\n", button, status);
-  if(status == BUTTON_RELEASE)
+  if (status == BUTTON_RELEASE)
     return;
-  e_actions action=NONE;
-  switch(button)
+  e_actions action = NONE;
+  switch (button)
   {
     case BTN_UP:
       action = WHITE_UP;

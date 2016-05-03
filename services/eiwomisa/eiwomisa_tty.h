@@ -21,8 +21,8 @@
 
 #ifndef HAVE_EIWOMISA_TTY_H
 #define HAVE_EIWOMISA_TTY_H
- 
+
 void eiwomisa_tty_init();
 void eiwomisa_tty_periodic();
 
-#endif /* HAVE_EIWOMISA_BUTTON_H */
+#endif /* HAVE_EIWOMISA_TTY_H */

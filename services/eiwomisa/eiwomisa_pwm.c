@@ -50,16 +50,16 @@ void
 eiwomisa_pwm_init()
 {
   TC1_INPUT_CAPTURE = PERIODIC_TOP;     // set the timer top value (PWM_Freq= F_CPU /(Prescaler * (ICR1 + 1)) )
-  TC1_MODE_PWMFAST_ICR;               // Fast PWM, TOP ICR1, Pin low on OCR1A,OCR1B match
+  TC1_MODE_PWMFAST_ICR;         // Fast PWM, TOP ICR1, Pin low on OCR1A,OCR1B match
   TC1_PRESCALER_8;              // clockselect: clkI/O/8 (From prescaler)
 
   TC3_INPUT_CAPTURE = PERIODIC_TOP;     // set the timer top value (PWM_Freq= F_CPU /(Prescaler * (ICR1 + 1)) )
-  TC3_MODE_PWMFAST_ICR;               // Fast PWM, TOP ICR1, Pin low on OCR1A,OCR1B match
+  TC3_MODE_PWMFAST_ICR;         // Fast PWM, TOP ICR1, Pin low on OCR1A,OCR1B match
   TC3_PRESCALER_8;              // clockselect: clkI/O/8 (From prescaler)
 
   PWMDEBUG("PWM1 freq: %u Hz\n", F_CPU / (8 * (TC1_INPUT_CAPTURE + 1)));
   PWMDEBUG("PWM2 freq: %u Hz\n", F_CPU / (8 * (TC3_INPUT_CAPTURE + 1)));
-  
+
   //Set all channels to Min Value
   e_leds i;
   for (i = 0; i < LED_ALL; i++)
@@ -74,7 +74,7 @@ static void
 eiwomisa_setpwm_hardware(const e_leds channel, const uint8_t setval)
 {
   uint16_t temp;
-  channelVal[channel]=setval;
+  channelVal[channel] = setval;
 #ifdef EIWOMISA_USE_CIE1931
   temp = pgm_read_word_near(cie_luminance_8bit_to_top + setval);
 #else
@@ -149,7 +149,7 @@ eiwomisa_getpwmfade(const e_leds channel)
   return channelFade[channel];
 }
 
-void 
+void
 eiwomisa_setpwmfade(const e_leds channel, const uint8_t setval)
 {
   channelFade[channel] = setval;
@@ -171,7 +171,7 @@ eiwomisa_getfadeDelay()
   return fadeDelay;
 }
 
-void 
+void
 eiwomisa_setfadeDelay(const uint8_t setval)
 {
   fadeDelay = setval;
@@ -195,7 +195,7 @@ eiwomisa_pwm_periodic()
         eiwomisa_setpwm_hardware(i, channelVal[i] - 1);
       }
     }
-    fadeStep=0;
+    fadeStep = 0;
   }
 }
 

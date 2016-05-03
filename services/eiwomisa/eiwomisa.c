@@ -59,8 +59,7 @@ eiwomisa_init()
   /* Setup DMX-Storage Connection */
   eiwomisa_dmx_conn_id = dmx_storage_connect(EIWOMISA_UNIVERSE);
   get_dmx_channel_slot(EIWOMISA_UNIVERSE,
-                                         EIWOMISA_UNIVERSE_OFFSET,
-                                         eiwomisa_dmx_conn_id);
+                       EIWOMISA_UNIVERSE_OFFSET, eiwomisa_dmx_conn_id);
   EIWOMISA_DEBUG("Setup DMX id %i\n", eiwomisa_dmx_conn_id);
 #endif
 }
@@ -68,10 +67,10 @@ eiwomisa_init()
 void
 eiwomisa_setProg(const e_programs newprog)
 {
-  if(newprog >= COUNT_PROGRAMS)
+  if (newprog >= COUNT_PROGRAMS)
     return;
 #ifdef EIWOMISA_DMX_SUPPORT
-  if(newprog<DMX_RECEIVER)
+  if (newprog < DMX_RECEIVER)
   {
     fxslot[EIWOMISA_FXSLOT].active = 1;
     fxslot[EIWOMISA_FXSLOT].effect = newprog + 1;
@@ -120,13 +119,13 @@ void
 eiwomisa_doAction(const e_actions action)
 {
   EIWOMISA_DEBUG("Action=%u\n", action);
-  if(action==NONE)
+  if (action == NONE)
     return;
   uint8_t newprog = config.program;
 #ifdef EIWOMISA_TTY_SUPPORT
   eiwomisa_tty_refresh();
 #endif
-  switch(action)
+  switch (action)
   {
 #ifndef TEENSY_SUPPORT
     case SAVE:
@@ -152,19 +151,23 @@ eiwomisa_doAction(const e_actions action)
         fxslot[EIWOMISA_FXSLOT].speed--;
       break;
     case PROG_PLAYPAUSE:
-      fxslot[EIWOMISA_FXSLOT].active = (fxslot[config.program].active == 0) ? 1 : 0;
+      fxslot[EIWOMISA_FXSLOT].active =
+        (fxslot[EIWOMISA_FXSLOT].active == 0) ? 1 : 0;
       break;
 #endif
     case WHITE_UP:
-      if(config.whitedim[config.program])
-        config.whitedim[config.program] = (config.whitedim[config.program] == ON) ? UP : ON;
+      if (config.whitedim[config.program])
+        config.whitedim[config.program] =
+          (config.whitedim[config.program] == ON) ? UP : ON;
       break;
     case WHITE_DOWN:
-      if(config.whitedim[config.program])
-        config.whitedim[config.program] = (config.whitedim[config.program] == ON) ? DOWN : ON;
+      if (config.whitedim[config.program])
+        config.whitedim[config.program] =
+          (config.whitedim[config.program] == ON) ? DOWN : ON;
       break;
     case WHITE_TOGGLE:
-      config.whitedim[config.program] = (config.whitedim[config.program] == OFF) ? ON : OFF;
+      config.whitedim[config.program] =
+        (config.whitedim[config.program] == OFF) ? ON : OFF;
       break;
     default:
       break;
@@ -196,7 +199,7 @@ eiwomisa_storeToEEPROM(void)
 void
 eiwomisa_periodic()
 {
-  switch(config.program)
+  switch (config.program)
   {
 #ifdef EIWOMISA_DMX_SUPPORT
     case RAINBOW:
@@ -210,9 +213,9 @@ eiwomisa_periodic()
         for (uint8_t i = 0; i < LED_W; i++)
         {
           eiwomisa_setpwmfade(i,
-                        get_dmx_channel_slot(EIWOMISA_UNIVERSE,
-                                             EIWOMISA_UNIVERSE_OFFSET + i,
-                                             eiwomisa_dmx_conn_id));
+                              get_dmx_channel_slot(EIWOMISA_UNIVERSE,
+                                                   EIWOMISA_UNIVERSE_OFFSET +
+                                                   i, eiwomisa_dmx_conn_id));
         }
       }
       break;
@@ -225,54 +228,53 @@ eiwomisa_periodic()
         for (uint8_t i = 0; i < LED_W; i++)
         {
           eiwomisa_setpwm(i,
-                        get_dmx_channel_slot(EIWOMISA_UNIVERSE,
-                                             EIWOMISA_UNIVERSE_OFFSET + i,
-                                             eiwomisa_dmx_conn_id));
+                          get_dmx_channel_slot(EIWOMISA_UNIVERSE,
+                                               EIWOMISA_UNIVERSE_OFFSET + i,
+                                               eiwomisa_dmx_conn_id));
         }
       }
-      else if(EIWOMISA_DMX_TIMEOUT
-              && (clock_get_time() - last_dmx_sync) > EIWOMISA_DMX_TIMEOUT)
+      else if (EIWOMISA_DMX_TIMEOUT
+               && (clock_get_time() - last_dmx_sync) > EIWOMISA_DMX_TIMEOUT)
       {
         last_dmx_sync = clock_get_time();
         EIWOMISA_DEBUG("DMX Timeout!\n");
         for (uint8_t i = 0; i < LED_W; i++)
         {
-          eiwomisa_setpwm(i,0);
-        }          
+          eiwomisa_setpwm(i, 0);
+        }
       }
       break;
 #endif
     case WHITE:
-        for (uint8_t i = 0; i < LED_W; i++)
-        {
-          if(eiwomisa_getpwmfade(i)!=config.white_rgb_values[i])
-            eiwomisa_setpwmfade(i, config.white_rgb_values[i]);
-        }
+      for (uint8_t i = 0; i < LED_W; i++)
+      {
+        if (eiwomisa_getpwmfade(i) != config.white_rgb_values[i])
+          eiwomisa_setpwmfade(i, config.white_rgb_values[i]);
+      }
       break;
     default:
       break;
   }
-  
+
   //Update white channel
-  if(config.whitedim[config.program] == OFF)
+  if (config.whitedim[config.program] == OFF)
   {
-    if(eiwomisa_getpwmfade(LED_W))
+    if (eiwomisa_getpwmfade(LED_W))
       eiwomisa_setpwmfade(LED_W, 0);
   }
-  else
-    if(eiwomisa_getpwmfade(LED_W) != config.white_values[config.program])
-      eiwomisa_setpwmfade(LED_W, config.white_values[config.program]);
+  else if (eiwomisa_getpwmfade(LED_W) != config.white_values[config.program])
+    eiwomisa_setpwmfade(LED_W, config.white_values[config.program]);
 
 }
 
 void
 eiwomisa_whitedim()
 {
-  if(config.whitedim[config.program])
+  if (config.whitedim[config.program])
   {
-    if(config.whitedim[config.program] == UP)
+    if (config.whitedim[config.program] == UP)
     {
-      if(config.white_values[config.program] < 255)
+      if (config.white_values[config.program] < 255)
         config.white_values[config.program]++;
       else
       {
@@ -282,9 +284,9 @@ eiwomisa_whitedim()
 #endif
       }
     }
-    if(config.whitedim[config.program] == DOWN)
-    {  
-      if(config.white_values[config.program] > 0)
+    if (config.whitedim[config.program] == DOWN)
+    {
+      if (config.white_values[config.program] > 0)
         config.white_values[config.program]--;
       else
       {

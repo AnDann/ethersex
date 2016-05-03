@@ -51,7 +51,7 @@ parse_cmd_eiwomisa_prog(char *cmd, char *output, const uint16_t len)
 {
   if (cmd[0])
   {
-    eiwomisa_setProg (atoi(cmd));
+    eiwomisa_setProg(atoi(cmd));
     return ECMD_FINAL_OK;
   }
   else
@@ -66,7 +66,7 @@ parse_cmd_eiwomisa_action(char *cmd, char *output, const uint16_t len)
 {
   if (cmd[0])
   {
-    eiwomisa_doAction (atoi(cmd));
+    eiwomisa_doAction(atoi(cmd));
     return ECMD_FINAL_OK;
   }
   else
@@ -94,7 +94,8 @@ parse_cmd_eiwomisa_prog_speed(char *cmd, char *output, const uint16_t len)
 
 // ECMD:  set/get fading for channel
 int16_t
-parse_cmd_eiwomisa_pwm_fade_command(char *cmd, char *output, const uint16_t len)
+parse_cmd_eiwomisa_pwm_fade_command(char *cmd, char *output,
+                                    const uint16_t len)
 {
   if (cmd[0] == '\0')
   {
@@ -147,7 +148,8 @@ parse_cmd_eiwomisa_pwm_command(char *cmd, char *output, const uint16_t len)
 
 // ECMD:  set/get fading delay
 int16_t
-parse_cmd_eiwomisa_pwm_delay_command(char *cmd, char *output, const uint16_t len)
+parse_cmd_eiwomisa_pwm_delay_command(char *cmd, char *output,
+                                     const uint16_t len)
 {
   if (cmd[0])
   {
