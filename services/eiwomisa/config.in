@@ -1,4 +1,4 @@
-dep_bool_menu "Eiwomisa Module" EIWOMISA_SUPPORT $ARCH_AVR $TCP_SUPPORT
+dep_bool_menu "Eiwomisa Module" EIWOMISA_SUPPORT $ARCH_AVR
 
     if [ "$MQTT_SUPPORT" = "y" ] && [ "$MQTT_STATIC_CONF" = "y" ]; then
       comment  '----- MQTT -----'
