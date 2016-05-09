@@ -101,6 +101,7 @@ e_whitedim eiwomisa_getWhiteStatus();
 void eiwomisa_setProgSpeed(const uint16_t newspeed);
 uint16_t eiwomisa_getProgSpeed();
 uint8_t eiwomisa_getProgActive();
+uint8_t eiwomisa_getProgDimmer();
 
 void eiwomisa_periodic();
 void eiwomisa_whitedim();

@@ -3,6 +3,9 @@ dep_bool_menu "Eiwomisa Module" EIWOMISA_SUPPORT $ARCH_AVR
     if [ "$MQTT_SUPPORT" = "y" ] && [ "$MQTT_STATIC_CONF" = "y" ]; then
       comment  '----- MQTT -----'
       dep_bool 'MQTT Support' EIWOMISA_MQTT_SUPPORT $MQTT_SUPPORT $MQTT_STATIC_CONF $EIWOMISA_SUPPORT
+      if [ "$EIWOMISA_MQTT_SUPPORT" = y ]; then
+        string 'MQTT topic' EIWOMISA_MQTT_TOPIC "eiwomisa"
+      fi
     else
       comment  '----- MQTT not available (please enable MQTT Client) -----'
     fi
@@ -48,6 +51,7 @@ dep_bool_menu "Eiwomisa Module" EIWOMISA_SUPPORT $ARCH_AVR
     comment  '----- Debug -----'
     dep_bool 'Debug' DEBUG_EIWOMISA $DEBUG
     dep_bool 'Debug PWM' DEBUG_EIWOMISA_PWM $DEBUG
+    dep_bool 'Debug MQTT' DEBUG_EIWOMISA_MQTT $DEBUG $EIWOMISA_MQTT_SUPPORT
     dep_bool 'Debug TTY' DEBUG_EIWOMISA_TTY $DEBUG $EIWOMISA_TTY_SUPPORT
     dep_bool 'Debug Button Input' DEBUG_EIWOMISA_BUTTON $DEBUG $EIWOMISA_BUTTON_SUPPORT
     dep_bool 'Debug IRMP Input' DEBUG_EIWOMISA_IRMP $DEBUG $EIWOMISA_IRMP_SUPPORT

@@ -22,10 +22,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "core/eeprom.h"
+#include "core/util/fixedpoint.h"
 
 #include "config.h"
 
 #include "eiwomisa_pwm.h"
+#include "eiwomisa_mqtt.h"
 
 #ifdef DEBUG_EIWOMISA
 #include "core/debug.h"
@@ -112,6 +114,12 @@ eiwomisa_getProgActive()
 {
   return fxslot[EIWOMISA_FXSLOT].active;
 }
+
+uint8_t
+eiwomisa_getProgDimmer()
+{
+  return get_dmx_universe_dimmer(EIWOMISA_UNIVERSE);
+}
 #endif
 
 e_whitedim
@@ -189,6 +197,11 @@ eiwomisa_doAction(const e_actions action)
     default:
       break;
   }
+#ifdef EIWOMISA_MQTT_SUPPORT
+  char *data = malloc(4);
+  utoa(action, data, 10);
+  push(data, &mqtt_action_queue);
+#endif
 }
 
 #ifndef TEENSY_SUPPORT

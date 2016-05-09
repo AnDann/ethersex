@@ -27,6 +27,7 @@
 #include "hardware/ir/irmp/irmp.h"
 #include "eiwomisa.h"
 #include "eiwomisa_irmp.h"
+#include "eiwomisa_mqtt.h"
 
 #ifdef DEBUG_EIWOMISA_IRMP
 #include "core/debug.h"
@@ -48,6 +49,15 @@ eiwomisa_irmp_periodic()
     EIWOMISA_IRMP_DEBUG("Protocol=%u Address=%u Command=%u Flags=%u",
                         irmp_data->protocol, irmp_data->address,
                         irmp_data->command, irmp_data->flags);
+                        
+#ifdef EIWOMISA_MQTT_SUPPORT
+    if (!irmp_data->flags)
+    {
+      irmp_data_t *data = malloc(sizeof(irmp_data_t));
+      *data = *irmp_data;
+      push((char*)data, &mqtt_irmp_queue);
+    }
+#endif  
     if (irmp_data->protocol == EIWOMISA_IR_PROTOCOL &&
         irmp_data->address == EIWOMISA_IR_ADDRESS)
     {

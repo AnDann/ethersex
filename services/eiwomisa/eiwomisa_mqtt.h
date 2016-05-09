@@ -23,6 +23,11 @@
 #ifndef _EIWOMISA_MQTT_H
 #define _EIWOMISA_MQTT_H
 
+#include "core/queue/queue.h"
+
+extern Queue mqtt_action_queue;
+extern Queue mqtt_irmp_queue;
+
 void eiwomisa_mqtt_init();
 
 #endif /* _EIWOMISA_MQTT_H */
