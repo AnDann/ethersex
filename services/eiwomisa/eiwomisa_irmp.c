@@ -52,10 +52,21 @@ eiwomisa_irmp_periodic()
         irmp_data->address == EIWOMISA_IR_ADDRESS)
     {
       e_actions action = NONE;
+
+      // Not repeated commands
       if (!irmp_data->flags)
       {
         switch (irmp_data->command)
         {
+          case 1 ... 12:
+            eiwomisa_setProg(irmp_data->command - 1);
+            break;
+          case 17:
+            action = SAVE;
+            break;
+          case 18:
+            action = LOAD;
+            break;
           case 23:
             action = WHITE_UP;
             break;
@@ -76,9 +87,47 @@ eiwomisa_irmp_periodic()
             action = PROG_PLAYPAUSE;
             break;
         }
+        if (action != NONE)
+        {
+          eiwomisa_doAction(action);
+          return;
+        }
+      }
+      switch (irmp_data->command)
+      {
+        case 25:
+          action = MENU_UP;
+          break;
+        case 26:
+          action = MENU_RIGHT;
+          break;
+        case 27:
+          action = MENU_DOWN;
+          break;
+        case 28:
+          action = MENU_LEFT;
+          break;
+        case 29:
+          action = MENU_OK;
+          break;
+        case 13:
+          action = MENU_HOME;
+          break;
+        case 20:
+          action = PROGDIM_UP;
+          break;
+        case 19:
+          action = PROGDIM_DOWN;
+          break;
+        case 30:
+          action = PROGSPEED_UP;
+          break;
+        case 31:
+          action = PROGSPEED_DOWN;
+          break;
       }
       eiwomisa_doAction(action);
-
+      return;
     }
   }
 }
