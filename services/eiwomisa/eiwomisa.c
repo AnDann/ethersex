@@ -80,6 +80,9 @@ eiwomisa_setProg(const e_programs newprog)
     fxslot[EIWOMISA_FXSLOT].active = 0;
 #endif
   config.program = newprog;
+#ifdef EIWOMISA_TTY_SUPPORT
+  eiwomisa_tty_refresh();
+#endif
 }
 
 e_programs
@@ -122,6 +125,7 @@ eiwomisa_doAction(const e_actions action)
   if (action == NONE)
     return;
   uint8_t newprog = config.program;
+  uint8_t newvalue;
 #ifdef EIWOMISA_TTY_SUPPORT
   eiwomisa_tty_refresh();
 #endif
@@ -149,6 +153,16 @@ eiwomisa_doAction(const e_actions action)
     case PROGSPEED_DOWN:
       if (fxslot[EIWOMISA_FXSLOT].speed > 0)
         fxslot[EIWOMISA_FXSLOT].speed--;
+      break;
+    case PROGDIM_UP:
+      newvalue=get_dmx_universe_dimmer(EIWOMISA_UNIVERSE);
+      if (newvalue < 255)
+        set_dmx_universe_dimmer(EIWOMISA_UNIVERSE, ++newvalue);
+      break;
+    case PROGDIM_DOWN:
+      newvalue=get_dmx_universe_dimmer(EIWOMISA_UNIVERSE);
+      if (newvalue > 0)
+        set_dmx_universe_dimmer(EIWOMISA_UNIVERSE, --newvalue);
       break;
     case PROG_PLAYPAUSE:
       fxslot[EIWOMISA_FXSLOT].active =
