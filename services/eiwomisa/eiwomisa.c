@@ -29,9 +29,9 @@
 
 #ifdef DEBUG_EIWOMISA
 #include "core/debug.h"
-#define EIWOMISA_DEBUG(a...)  debug_printf("[eiwomisa] " a)
+#define EIWOMISA_DEBUG(s, ...) debug_printf("[eiwomisa] " s "\n", ## __VA_ARGS__)
 #else
-#define EIWOMISA_DEBUG(a...)
+#define EIWOMISA_DEBUG(...)  do { } while(0)
 #endif
 
 #ifdef EIWOMISA_DMX_SUPPORT
@@ -60,7 +60,7 @@ eiwomisa_init()
   eiwomisa_dmx_conn_id = dmx_storage_connect(EIWOMISA_UNIVERSE);
   get_dmx_channel_slot(EIWOMISA_UNIVERSE,
                        EIWOMISA_UNIVERSE_OFFSET, eiwomisa_dmx_conn_id);
-  EIWOMISA_DEBUG("Setup DMX id %i\n", eiwomisa_dmx_conn_id);
+  EIWOMISA_DEBUG("Setup DMX id %i", eiwomisa_dmx_conn_id);
 #endif
 }
 
@@ -124,7 +124,7 @@ eiwomisa_getWhiteStatus()
 void
 eiwomisa_doAction(const e_actions action)
 {
-  EIWOMISA_DEBUG("Action=%u\n", action);
+  EIWOMISA_DEBUG("Action=%u", action);
   if (action == NONE)
     return;
   uint8_t newprog = config.program;
@@ -255,7 +255,7 @@ eiwomisa_periodic()
                && (clock_get_time() - last_dmx_sync) > EIWOMISA_DMX_TIMEOUT)
       {
         last_dmx_sync = clock_get_time();
-        EIWOMISA_DEBUG("DMX Timeout!\n");
+        EIWOMISA_DEBUG("DMX Timeout!");
         for (uint8_t i = 0; i < LED_W; i++)
         {
           eiwomisa_setpwm(i, 0);

@@ -31,9 +31,9 @@
 
 #ifdef DEBUG_EIWOMISA_TTY
 #include "core/debug.h"
-#define EIWOMISA_TTY_DEBUG(a...)  debug_printf("[tty] " a)
+#define EIWOMISA_TTY_DEBUG(s, ...) debug_printf("[tty] " s "\n", ## __VA_ARGS__)
 #else
-#define EIWOMISA_TTY_DEBUG(a...)
+#define EIWOMISA_TTY_DEBUG(...) do { } while(0)
 #endif
 
 #define ARROW_UP          0
@@ -145,7 +145,7 @@ eiwomisa_tty_periodic()
 #ifdef EIWOMISA_STELLA_BACKLIGHT
       stella_setValue(STELLA_SET_FADE, EIWOMISA_STELLA_CHANNEL, 0);
 #endif
-      EIWOMISA_TTY_DEBUG("Backlight off\n");
+      EIWOMISA_TTY_DEBUG("Backlight off");
     }
   }
 #endif /* EIWOMISA_HD44780_BACKLIGHT or EIWOMISA_STELLA_BACKLIGHT */
@@ -174,7 +174,7 @@ eiwomisa_tty_periodic()
     else
       waddch(wstatus, PAUSE);
     wprintw_P(wstatus, PSTR("%2u"), eiwomisa_getProgSpeed());
-    EIWOMISA_TTY_DEBUG("Refresh Stat=%u Prog=%u Active=%u Speed=%u \n",
+    EIWOMISA_TTY_DEBUG("Refresh Stat=%u Prog=%u Active=%u Speed=%u",
                        whitestatus, eiwomisa_getProg(),
                        eiwomisa_getProgActive(), eiwomisa_getProgSpeed());
   }

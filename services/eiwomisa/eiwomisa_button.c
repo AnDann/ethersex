@@ -30,9 +30,9 @@
 
 #ifdef DEBUG_EIWOMISA_BUTTON
 #include "core/debug.h"
-#define EIWOMISA_BUTTON_DEBUG(a...)  debug_printf("[button] " a)
+#define EIWOMISA_BUTTON_DEBUG(s, ...) debug_printf("[button] " s "\n", ## __VA_ARGS__)
 #else
-#define EIWOMISA_BUTTON_DEBUG(a...)
+#define EIWOMISA_BUTTON_DEBUG(...)  do { } while(0)
 #endif
 
 void
@@ -44,7 +44,7 @@ eiwomisa_button_init()
 void
 eiwomisa_button_handler(buttons_ButtonsType button, uint8_t status)
 {
-  EIWOMISA_BUTTON_DEBUG("Bt=%u St=%u\n", button, status);
+  EIWOMISA_BUTTON_DEBUG("Button=%u Status=%u", button, status);
   if (status == BUTTON_RELEASE)
     return;
   e_actions action = NONE;

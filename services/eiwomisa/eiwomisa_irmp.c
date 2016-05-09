@@ -30,9 +30,9 @@
 
 #ifdef DEBUG_EIWOMISA_IRMP
 #include "core/debug.h"
-#define EIWOMISA_IRMP_DEBUG(a...)  debug_printf("[irmp] " a)
+#define EIWOMISA_IRMP_DEBUG(s, ...) debug_printf("[irmp] " s "\n", ## __VA_ARGS__)
 #else
-#define EIWOMISA_IRMP_DEBUG(a...)
+#define EIWOMISA_IRMP_DEBUG(...)  do { } while(0)
 #endif
 
 #define EIWOMISA_IR_PROTOCOL  IRMP_PROTO_RC5
@@ -45,7 +45,7 @@ eiwomisa_irmp_periodic()
 
   if ((irmp_data = irmp_read()))
   {
-    EIWOMISA_IRMP_DEBUG("Protocol=%u Address=%u Command=%u Flags=%u\n",
+    EIWOMISA_IRMP_DEBUG("Protocol=%u Address=%u Command=%u Flags=%u",
                         irmp_data->protocol, irmp_data->address,
                         irmp_data->command, irmp_data->flags);
     if (irmp_data->protocol == EIWOMISA_IR_PROTOCOL &&

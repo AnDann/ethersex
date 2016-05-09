@@ -36,9 +36,9 @@
 
 #ifdef DEBUG_EIWOMISA_PWM
 #include "core/debug.h"
-#define PWMDEBUG(a...)  debug_printf("[pwm] " a)
+#define PWMDEBUG(s, ...) debug_printf("[pwm] " s "\n", ## __VA_ARGS__)
 #else
-#define PWMDEBUG(a...)
+#define PWMDEBUG(...)  do { } while(0)
 #endif
 
 static uint8_t channelVal[LED_ALL];
@@ -57,8 +57,8 @@ eiwomisa_pwm_init()
   TC3_MODE_PWMFAST_ICR;         // Fast PWM, TOP ICR1, Pin low on OCR1A,OCR1B match
   TC3_PRESCALER_8;              // clockselect: clkI/O/8 (From prescaler)
 
-  PWMDEBUG("PWM1 freq: %u Hz\n", F_CPU / (8 * (TC1_INPUT_CAPTURE + 1)));
-  PWMDEBUG("PWM2 freq: %u Hz\n", F_CPU / (8 * (TC3_INPUT_CAPTURE + 1)));
+  PWMDEBUG("PWM1 freq %uHz", F_CPU / (8 * (TC1_INPUT_CAPTURE + 1)));
+  PWMDEBUG("PWM2 freq %uHz", F_CPU / (8 * (TC3_INPUT_CAPTURE + 1)));
 
   //Set all channels to Min Value
   e_leds i;
@@ -131,7 +131,7 @@ eiwomisa_setpwm_hardware(const e_leds channel, const uint8_t setval)
       }
       break;
     default:
-      PWMDEBUG("channel %i unsupported\n", channel);
+      PWMDEBUG("channel %i unsupported", channel);
   }
 }
 
@@ -159,7 +159,7 @@ eiwomisa_setpwmfade(const e_leds channel, const uint8_t setval)
 void
 eiwomisa_setpwm(const e_leds channel, const uint8_t setval)
 {
-  PWMDEBUG("set %i, value %i\n", channel, setval);
+  PWMDEBUG("set %i, value %i", channel, setval);
   eiwomisa_setpwmfade(channel, setval);
   eiwomisa_setpwm_hardware(channel, setval);
 }
