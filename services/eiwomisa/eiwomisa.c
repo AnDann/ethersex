@@ -77,7 +77,10 @@ eiwomisa_setProg(const e_programs newprog)
     dmx_fxslot_init(EIWOMISA_FXSLOT);
   }
   else
+  {
     fxslot[EIWOMISA_FXSLOT].active = 0;
+    fxslot[EIWOMISA_FXSLOT].effect = 0;
+  }
 #endif
   config.program = newprog;
 #ifdef EIWOMISA_TTY_SUPPORT
@@ -239,9 +242,10 @@ eiwomisa_periodic()
           DMX_NEWVALUES)
       {
         last_dmx_sync = clock_get_time();
-        for (uint8_t i = 0; i < LED_W; i++)
+        for (uint8_t i = 0; i < LED_ALL; i++)
         {
-          eiwomisa_setpwm(i,
+          if (i != LED_W || config.program == DMX_RECEIVER)
+            eiwomisa_setpwm(i,
                           get_dmx_channel_slot(EIWOMISA_UNIVERSE,
                                                EIWOMISA_UNIVERSE_OFFSET + i,
                                                eiwomisa_dmx_conn_id));
@@ -269,7 +273,10 @@ eiwomisa_periodic()
     default:
       break;
   }
-
+  
+  if (config.program == DMX_RECEIVER)
+    return;
+  
   //Update white channel
   if (config.whitedim[config.program] == OFF)
   {
