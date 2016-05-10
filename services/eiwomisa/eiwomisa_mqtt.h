@@ -24,9 +24,15 @@
 #define _EIWOMISA_MQTT_H
 
 #include "core/queue/queue.h"
+#include "hardware/input/buttons/buttons.h"
+
+typedef struct button_data_t {
+  buttons_ButtonsType button,
+  uint8_t status
+} button_data_t
 
 extern Queue mqtt_action_queue;
-extern Queue mqtt_irmp_queue;
+extern Queue mqtt_button_queue;
 
 void eiwomisa_mqtt_init();
 

@@ -38,7 +38,6 @@
 #define EIWOMISA_PROGSPEED_PUBLISH_TOPIC     EIWOMISA_MQTT_TOPIC "/from/prog/speed"
 #define EIWOMISA_ACTION_PUBLISH_TOPIC   EIWOMISA_MQTT_TOPIC "/from/action"
 #define EIWOMISA_BUTTON_PUBLISH_TOPIC   EIWOMISA_MQTT_TOPIC "/from/button/%u"
-#define EIWOMISA_IRMP_PUBLISH_TOPIC     EIWOMISA_MQTT_TOPIC "/irmp/%02" PRId8 "/%04" PRIX16
 #define EIWOMISA_MQTT_RETAIN            false
 #define DATA_LENGTH                     8
 #define TOPIC_LENGTH                    sizeof(EIWOMISA_IRMP_PUBLISH_TOPIC) + 10
@@ -51,7 +50,6 @@
 #endif
 
 Queue mqtt_action_queue = { NULL, NULL };
-Queue mqtt_irmp_queue = { NULL, NULL };
 Queue mqtt_button_queue = { NULL, NULL };
 static uint8_t last_prog = 255, last_progspeed = 255, last_progdim = 0;
 
@@ -105,21 +103,21 @@ eiwomisa_poll_cb(void)
     free(data);
   }
   
-#ifdef  EIWOMISA_IRMP_SUPPORT
-  // IRMP publish
-  while (!isEmpty(&mqtt_irmp_queue))
+#ifdef  EIWOMISA_BUTTON_SUPPORT
+  // Button publish
+  while (!isEmpty(&mqtt_button_queue))
   {
-    irmp_data_t *data;
-    data = (irmp_data_t*)pop(&mqtt_irmp_queue);
-    topic_len = snprintf_P(topic, TOPIC_LENGTH, PSTR(EIWOMISA_IRMP_PUBLISH_TOPIC), data->protocol, data->address);
-    len = snprintf_P(buf, DATA_LENGTH, PSTR("%02" PRIX16), data->command);
+    button_data_t *data;
+    data = (button_data_t*)pop(&mqtt_button_queue);
+    topic_len = snprintf_P(topic, TOPIC_LENGTH, PSTR(EIWOMISA_BUTTON_PUBLISH_TOPIC), data->button);
+    len = snprintf_P(buf, DATA_LENGTH, PSTR("%02" PRId8), data->status);
     if (!mqtt_construct_publish_packet(topic, buf, len, EIWOMISA_MQTT_RETAIN))
     {
-      EIWOMISA_MQTT_DEBUG("MQTT send irmp failed!");
+      EIWOMISA_MQTT_DEBUG("MQTT send button failed!");
       free(data);
       return;
     }
-    EIWOMISA_MQTT_DEBUG("%s=%s", EIWOMISA_IRMP_PUBLISH_TOPIC, buf);
+    EIWOMISA_MQTT_DEBUG("%s=%s", EIWOMISA_BUTTON_PUBLISH_TOPIC, buf);
     free(data);
   }
 #endif

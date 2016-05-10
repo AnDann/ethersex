@@ -27,6 +27,7 @@
 #include "hardware/input/buttons/buttons.h"
 #include "eiwomisa.h"
 #include "eiwomisa_button.h"
+#include "eiwomisa_mqtt.h"
 
 #ifdef DEBUG_EIWOMISA_BUTTON
 #include "core/debug.h"
@@ -69,6 +70,12 @@ eiwomisa_button_handler(buttons_ButtonsType button, uint8_t status)
       action = PROG_PLAYPAUSE;
       break;
   }
+#ifdef EIWOMISA_MQTT_SUPPORT
+  button_data_t *data = malloc(sizeof(button_data_t));
+  data->button = button;
+  data->status = status;
+  push((char *)data, &mqtt_button_queue);
+#endif
   eiwomisa_doAction(action);
 }
 
