@@ -100,13 +100,13 @@ eiwomisa_getProg()
 uint16_t
 eiwomisa_getProgSpeed()
 {
-  return fxslot[EIWOMISA_FXSLOT].speed;
+  return config.progspeed[config.program];
 }
 
 void
 eiwomisa_setProgSpeed(uint16_t newspeed)
 {
-  fxslot[EIWOMISA_FXSLOT].speed = newspeed;
+  config.progspeed[config.program] = newspeed;
 }
 
 uint8_t
@@ -120,6 +120,12 @@ eiwomisa_getProgDimmer()
 {
   return get_dmx_universe_dimmer(EIWOMISA_UNIVERSE);
 }
+
+void
+eiwomisa_setProgDimmer(const uint8_t newdimmer)
+{
+  set_dmx_universe_dimmer(EIWOMISA_UNIVERSE, newdimmer);
+}
 #endif
 
 e_whitedim
@@ -128,6 +134,17 @@ eiwomisa_getWhiteStatus()
   return config.whitedim[config.program];
 }
 
+uint8_t
+eiwomisa_getWhite()
+{
+  return config.white_values[config.program];
+}
+
+void
+eiwomisa_setWhite(uint8_t newwhite)
+{
+  config.white_values[config.program] = newwhite;
+}
 
 void
 eiwomisa_doAction(const e_actions action)
@@ -158,12 +175,12 @@ eiwomisa_doAction(const e_actions action)
       break;
 #ifdef EIWOMISA_DMX_SUPPORT
     case PROGSPEED_UP:
-      if (fxslot[EIWOMISA_FXSLOT].speed < 1000)
-        fxslot[EIWOMISA_FXSLOT].speed++;
+      if (config.progspeed[config.program] < 255)
+        config.progspeed[config.program]++;
       break;
     case PROGSPEED_DOWN:
-      if (fxslot[EIWOMISA_FXSLOT].speed > 0)
-        fxslot[EIWOMISA_FXSLOT].speed--;
+      if (config.progspeed[config.program] > 0)
+        config.progspeed[config.program]--;
       break;
     case PROGDIM_UP:
       newvalue=get_dmx_universe_dimmer(EIWOMISA_UNIVERSE);
@@ -299,6 +316,9 @@ eiwomisa_periodic()
   else if (eiwomisa_getpwmfade(LED_W) != config.white_values[config.program])
     eiwomisa_setpwmfade(LED_W, config.white_values[config.program]);
 
+  //Update progspeed
+  if (fxslot[EIWOMISA_FXSLOT].speed != config.progspeed[config.program])
+    fxslot[EIWOMISA_FXSLOT].speed = config.progspeed[config.program];
 }
 
 void

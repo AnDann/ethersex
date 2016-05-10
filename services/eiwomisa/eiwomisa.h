@@ -87,6 +87,9 @@ typedef struct eiwomisa_config_t
   e_whitedim whitedim[COUNT_PROGRAMS];
   uint8_t white_values[COUNT_PROGRAMS];
   uint8_t white_rgb_values[LED_W];
+#ifdef EIWOMISA_DMX_SUPPORT
+  uint8_t progspeed[COUNT_PROGRAMS];
+#endif
 } eiwomisa_config_t;
 
 #ifdef EIWOMISA_TTY_SUPPORT
@@ -99,9 +102,12 @@ void eiwomisa_setProg(const e_programs newprog);
 e_programs eiwomisa_getProg();
 e_whitedim eiwomisa_getWhiteStatus();
 void eiwomisa_setProgSpeed(const uint16_t newspeed);
+void eiwomisa_setWhite(const uint8_t newwhite);
+void eiwomisa_setProgDimmer(const uint8_t newdimmer);
 uint16_t eiwomisa_getProgSpeed();
 uint8_t eiwomisa_getProgActive();
 uint8_t eiwomisa_getProgDimmer();
+uint8_t eiwomisa_getWhite();
 
 void eiwomisa_periodic();
 void eiwomisa_whitedim();

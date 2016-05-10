@@ -33,14 +33,21 @@
 #include "eiwomisa.h"
 #include "eiwomisa_mqtt.h"
 
-#define EIWOMISA_PROG_PUBLISH_TOPIC     EIWOMISA_MQTT_TOPIC "/from/prog"
-#define EIWOMISA_PROGDIM_PUBLISH_TOPIC     EIWOMISA_MQTT_TOPIC "/from/prog/dimmer"
-#define EIWOMISA_PROGSPEED_PUBLISH_TOPIC     EIWOMISA_MQTT_TOPIC "/from/prog/speed"
-#define EIWOMISA_ACTION_PUBLISH_TOPIC   EIWOMISA_MQTT_TOPIC "/from/action"
-#define EIWOMISA_BUTTON_PUBLISH_TOPIC   EIWOMISA_MQTT_TOPIC "/from/button/%u"
-#define EIWOMISA_MQTT_RETAIN            false
-#define DATA_LENGTH                     8
-#define TOPIC_LENGTH                    sizeof(EIWOMISA_IRMP_PUBLISH_TOPIC) + 10
+#define EIWOMISA_PROG_PUBLISH_TOPIC         EIWOMISA_MQTT_TOPIC "/from/prog"
+#define EIWOMISA_PROGDIM_PUBLISH_TOPIC      EIWOMISA_MQTT_TOPIC "/from/prog/dimmer"
+#define EIWOMISA_PROGSPEED_PUBLISH_TOPIC    EIWOMISA_MQTT_TOPIC "/from/prog/speed"
+#define EIWOMISA_WHITE_PUBLISH_TOPIC        EIWOMISA_MQTT_TOPIC "/from/white"
+#define EIWOMISA_ACTION_PUBLISH_TOPIC       EIWOMISA_MQTT_TOPIC "/from/action"
+#define EIWOMISA_BUTTON_PUBLISH_TOPIC       EIWOMISA_MQTT_TOPIC "/from/button/%u"
+#define EIWOMISA_SUBSCRIBE_TOPIC            EIWOMISA_MQTT_TOPIC "/to/#"
+#define EIWOMISA_PROG_SUBSCRIBE_TOPIC       EIWOMISA_MQTT_TOPIC "/to/prog"
+#define EIWOMISA_PROGDIM_SUBSCRIBE_TOPIC    EIWOMISA_MQTT_TOPIC "/to/prog/dimmer"
+#define EIWOMISA_PROGSPEED_SUBSCRIBE_TOPIC  EIWOMISA_MQTT_TOPIC "/to/prog/speed"
+#define EIWOMISA_WHITE_SUBSCRIBE_TOPIC      EIWOMISA_MQTT_TOPIC "/to/white"
+#define EIWOMISA_ACTION_SUBSCRIBE_TOPIC     EIWOMISA_MQTT_TOPIC "/to/action"
+#define EIWOMISA_MQTT_RETAIN              false
+#define DATA_LENGTH                       8
+#define TOPIC_LENGTH                      sizeof(EIWOMISA_PROGDIM_PUBLISH_TOPIC) + 10
 
 #ifdef DEBUG_EIWOMISA_MQTT
 #include "core/debug.h"
@@ -51,14 +58,13 @@
 
 Queue mqtt_action_queue = { NULL, NULL };
 Queue mqtt_button_queue = { NULL, NULL };
-static uint8_t last_prog = 255, last_progspeed = 255, last_progdim = 0;
+static uint8_t last_prog = 255, last_progspeed = 255, last_progdim = 0, last_white = 0;
 
 void
 eiwomisa_poll_cb(void)
 {
   EIWOMISA_MQTT_DEBUG("MQTT Poll");
   uint8_t len;
-  uint8_t topic_len;
   char buf[DATA_LENGTH];
   char topic[TOPIC_LENGTH];
   
@@ -80,13 +86,22 @@ eiwomisa_poll_cb(void)
     EIWOMISA_MQTT_DEBUG("%s=%s", EIWOMISA_PROGDIM_PUBLISH_TOPIC, buf);
   }
 
-  // Program publish
+  // Program speed publish
   if (last_progspeed != eiwomisa_getProgSpeed())
   {
     last_progspeed = eiwomisa_getProgSpeed();
     len = snprintf_P(buf, DATA_LENGTH, PSTR("%u"), last_progspeed);
     mqtt_construct_publish_packet(EIWOMISA_PROGSPEED_PUBLISH_TOPIC, buf, len, EIWOMISA_MQTT_RETAIN);
     EIWOMISA_MQTT_DEBUG("%s=%s", EIWOMISA_PROGSPEED_PUBLISH_TOPIC, buf);
+  }
+
+  // White value publish
+  if (last_white != eiwomisa_getWhite())
+  {
+    last_white = eiwomisa_getWhite();
+    len = snprintf_P(buf, DATA_LENGTH, PSTR("%u"), last_white);
+    mqtt_construct_publish_packet(EIWOMISA_WHITE_PUBLISH_TOPIC, buf, len, EIWOMISA_MQTT_RETAIN);
+    EIWOMISA_MQTT_DEBUG("%s=%s", EIWOMISA_WHITE_PUBLISH_TOPIC, buf);
   }
   
   // Action publish
@@ -109,7 +124,7 @@ eiwomisa_poll_cb(void)
   {
     button_data_t *data;
     data = (button_data_t*)pop(&mqtt_button_queue);
-    topic_len = snprintf_P(topic, TOPIC_LENGTH, PSTR(EIWOMISA_BUTTON_PUBLISH_TOPIC), data->button);
+    snprintf_P(topic, TOPIC_LENGTH, PSTR(EIWOMISA_BUTTON_PUBLISH_TOPIC), data->button);
     len = snprintf_P(buf, DATA_LENGTH, PSTR("%02" PRId8), data->status);
     if (!mqtt_construct_publish_packet(topic, buf, len, EIWOMISA_MQTT_RETAIN))
     {
@@ -127,27 +142,49 @@ void
 eiwomisa_publish_cb(char const *topic, uint16_t topic_length,
                    const void *payload, uint16_t payload_length)
 {
+
   EIWOMISA_MQTT_DEBUG("MQTT Publish: %s", topic);
-  if (topic_length < 20)
+  if (topic_length < sizeof(EIWOMISA_SUBSCRIBE_TOPIC) + 3)
     return;
 
-  if (topic[sizeof(EIWOMISA_MQTT_TOPIC)] == 's')
+  char *strpayload = malloc(payload_length + 1);
+  uint16_t raw_val;
+  
+  memcpy(strpayload, payload, payload_length);
+  strpayload[payload_length] = 0;
+  sscanf_P(strpayload, PSTR("%i"), &raw_val);
+  free(strpayload);
+  
+  if (strncmp_P(topic, PSTR(EIWOMISA_PROG_SUBSCRIBE_TOPIC), topic_length) == 0)
   {
-
+    eiwomisa_setProg(raw_val);
   }
-  else if (topic[sizeof(EIWOMISA_MQTT_TOPIC)] == 'q')
+  else if (strncmp_P(topic, PSTR(EIWOMISA_PROGDIM_SUBSCRIBE_TOPIC), topic_length) == 0)
   {
-
+    eiwomisa_setProgDimmer(raw_val);
+  }
+  else if (strncmp_P(topic, PSTR(EIWOMISA_PROGSPEED_SUBSCRIBE_TOPIC), topic_length) == 0)
+  {
+    eiwomisa_setProgSpeed(raw_val);
+  }
+  else if (strncmp_P(topic, PSTR(EIWOMISA_WHITE_SUBSCRIBE_TOPIC), topic_length) == 0)
+  {
+    eiwomisa_setWhite(raw_val);
+  }
+  else if (strncmp_P(topic, PSTR(EIWOMISA_ACTION_SUBSCRIBE_TOPIC), topic_length) == 0)
+  {
+    eiwomisa_doAction(raw_val);
   }
   else
     EIWOMISA_MQTT_DEBUG("MQTT parse error");
+
 }
 
 static void
 eiwomisa_connack_cb(void)
 {
-//  EIWOMISA_MQTT_DEBUG("MQTT Sub: " EIWOMISA_SUBSCRIBE_SET_TOPIC);
-//  mqtt_construct_subscribe_packet(EIWOMISA_SUBSCRIBE_SET_TOPIC);
+  EIWOMISA_MQTT_DEBUG("MQTT Sub: " EIWOMISA_SUBSCRIBE_TOPIC);
+  mqtt_construct_subscribe_packet(EIWOMISA_SUBSCRIBE_TOPIC);
 }
 
 static const mqtt_callback_config_t mqtt_callback_config PROGMEM = {
