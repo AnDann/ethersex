@@ -146,6 +146,21 @@ eiwomisa_setWhite(uint8_t newwhite)
   config.white_values[config.program] = newwhite;
 }
 
+uint32_t eiwomisa_getWhiteRGB()
+{
+  return (uint32_t)config.white_rgb_values[LED_R] << 16 | (uint32_t)config.white_rgb_values[LED_G] << 8 | (uint32_t)config.white_rgb_values[LED_B];
+}
+
+void eiwomisa_setWhiteRGB(const int16_t R, const int16_t G, const int16_t B)
+{
+  if(R>=0)
+    config.white_rgb_values[LED_R] = R;
+  if(G>=0)
+    config.white_rgb_values[LED_G] = G;
+  if(B>=0)
+    config.white_rgb_values[LED_B] = B;
+}
+
 void
 eiwomisa_doAction(const e_actions action)
 {
