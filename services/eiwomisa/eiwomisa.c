@@ -319,6 +319,7 @@ eiwomisa_periodic()
       break;
   }
   
+  //Dont update white channel if dmx is activated
   if (config.program == DMX_RECEIVER)
     return;
   

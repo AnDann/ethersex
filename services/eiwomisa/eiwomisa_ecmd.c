@@ -29,6 +29,7 @@
 #include "eiwomisa_pwm.h"
 #include "eiwomisa_ecmd.h"
 #include "protocols/ecmd/ecmd-base.h"
+#include "core/util/string_parsing.h"
 
 #ifndef TEENSY_SUPPORT
 int16_t
@@ -163,6 +164,51 @@ parse_cmd_eiwomisa_pwm_delay_command(char *cmd, char *output,
   }
 }
 
+// ECMD:  set/get white value
+int16_t
+parse_cmd_eiwomisa_white_command(char *cmd, char *output,
+                                     const uint16_t len)
+{
+  if (cmd[0])
+  {
+    eiwomisa_setWhite(atoi(cmd));
+    return ECMD_FINAL_OK;
+  }
+  else
+  {
+    itoa(eiwomisa_getWhite(), output, 10);
+    return ECMD_FINAL(strlen(output));
+  }
+}
+
+// ECMD:  set/get rgb white values
+int16_t
+parse_cmd_eiwomisa_white_rgb_command(char *cmd, char *output,
+                                    const uint16_t len)
+{
+  if (cmd[0] == '\0')
+  {
+    e_leds i;
+    for (i = 0; i < LED_W; i++)
+    {
+      output += snprintf_P(output, len, PSTR("%i "), eiwomisa_getpwmfade(i));
+    }
+    return ECMD_FINAL(strlen(output));
+  }
+  uint8_t value; 
+  cmd+=next_uint16(cmd, value);
+  eiwomisa_setpwmfade(0, value);
+  if (cmd[2] == '\0') return ECMD_FINAL_OK;
+  cmd+=next_uint16(cmd, value);
+  eiwomisa_setpwmfade(1, value);
+  if (cmd[2] == '\0') return ECMD_FINAL_OK;
+  cmd+=next_uint16(cmd, value);
+  eiwomisa_setpwmfade(2, value);
+  if (cmd[2] == '\0') return ECMD_FINAL_OK;
+
+  return ECMD_FINAL_OK;
+}
+
 /*
   -- Ethersex META --
   header(services/eiwomisa/eiwomisa_ecmd.h)
@@ -180,4 +226,6 @@ parse_cmd_eiwomisa_pwm_delay_command(char *cmd, char *output,
   ecmd_feature(eiwomisa_pwm_fade_command, "eiwomisa pwm fade", [channel value], Set/Get fade channel value)  
   ecmd_feature(eiwomisa_pwm_delay_command, "eiwomisa pwm delay", [value], Set/Get delay value)
   ecmd_feature(eiwomisa_pwm_command, "eiwomisa pwm", [channel value], Set/Get channel value)
+  ecmd_feature(eiwomisa_white_command, "eiwomisa white", [value], Set/Get channel value)
+  ecmd_feature(eiwomisa_white_rgb_command, "eiwomisa white rgb", [value], Set/Get RGB value)
 */
