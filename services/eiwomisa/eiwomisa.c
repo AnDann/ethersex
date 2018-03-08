@@ -141,9 +141,10 @@ eiwomisa_getWhite()
 }
 
 void
-eiwomisa_setWhite(uint8_t newwhite)
+eiwomisa_setWhite(uint8_t newWhite)
 {
-  config.white_values[config.program] = newwhite;
+  if(newWhite) config.whitedim[config.program] = ON;
+  config.white_values[config.program] = newWhite;
 }
 
 uint32_t eiwomisa_getWhiteRGB()
@@ -301,7 +302,7 @@ eiwomisa_periodic()
       {
         last_dmx_sync = clock_get_time();
         EIWOMISA_DEBUG("DMX Timeout!");
-        for (uint8_t i = 0; i < LED_W; i++)
+        for (uint8_t i = 0; i < LED_ALL; i++)
         {
           eiwomisa_setpwm(i, 0);
         }

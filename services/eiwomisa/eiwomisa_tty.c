@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include "eiwomisa.h"
+#include "eiwomisa_pwm.h"
 #include "eiwomisa_tty.h"
 #include "core/tty/tty.h"
 
@@ -118,16 +119,10 @@ eiwomisa_tty_init()
   uint8_t arrow_down[] = { BYTES_ARROW_DOWN };
   uint8_t play[] = { BYTES_PLAY };
   uint8_t pause[] = { BYTES_PAUSE };
-  hd44780_define_char(ARROW_UP, arrow_up, 1);
-  hd44780_define_char(ARROW_DOWN, arrow_down, 1);
-  hd44780_define_char(PLAY, play, 1);
-  hd44780_define_char(PAUSE, pause, 1);
-#ifdef HD44780_MULTIENSUPPORT
-  hd44780_define_char(ARROW_UP, arrow_up, 2);
-  hd44780_define_char(ARROW_DOWN, arrow_down, 2);
-  hd44780_define_char(PLAY, play, 2);
-  hd44780_define_char(PAUSE, pause, 2);
-#endif
+  hd44780_define_char(ARROW_UP, arrow_up);
+  hd44780_define_char(ARROW_DOWN, arrow_down);
+  hd44780_define_char(PLAY, play);
+  hd44780_define_char(PAUSE, pause);
 #endif /*  HD44780_SUPPORT */
 }
 
@@ -171,8 +166,10 @@ eiwomisa_tty_periodic()
     wclear(wstatus);
     if (eiwomisa_getProgActive())
       waddch(wstatus, PLAY);
+	;
     else
       waddch(wstatus, PAUSE);
+	;
     wprintw_P(wstatus, PSTR("%2u"), eiwomisa_getProgSpeed());
     EIWOMISA_TTY_DEBUG("Refresh Stat=%u Prog=%u Active=%u Speed=%u",
                        whitestatus, eiwomisa_getProg(),

@@ -195,16 +195,16 @@ parse_cmd_eiwomisa_white_rgb_command(char *cmd, char *output,
     }
     return ECMD_FINAL(strlen(output));
   }
-  uint8_t value; 
-  cmd+=next_uint16(cmd, value);
-  eiwomisa_setpwmfade(0, value);
+  uint16_t value,r,g,b;
+  cmd+=next_uint16(cmd, &value);
+  r = (uint8_t)value;
   if (cmd[2] == '\0') return ECMD_FINAL_OK;
-  cmd+=next_uint16(cmd, value);
-  eiwomisa_setpwmfade(1, value);
+  cmd+=next_uint16(cmd, &value);
+  g = (uint8_t)value;
   if (cmd[2] == '\0') return ECMD_FINAL_OK;
-  cmd+=next_uint16(cmd, value);
-  eiwomisa_setpwmfade(2, value);
-  if (cmd[2] == '\0') return ECMD_FINAL_OK;
+  cmd+=next_uint16(cmd, &value);
+  b = (uint8_t)value;
+  eiwomisa_setWhiteRGB(r,g,b);
 
   return ECMD_FINAL_OK;
 }
