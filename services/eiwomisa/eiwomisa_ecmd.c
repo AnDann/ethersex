@@ -166,8 +166,7 @@ parse_cmd_eiwomisa_pwm_delay_command(char *cmd, char *output,
 
 // ECMD:  set/get white value
 int16_t
-parse_cmd_eiwomisa_white_command(char *cmd, char *output,
-                                     const uint16_t len)
+parse_cmd_eiwomisa_white_command(char *cmd, char *output, const uint16_t len)
 {
   if (cmd[0])
   {
@@ -184,7 +183,7 @@ parse_cmd_eiwomisa_white_command(char *cmd, char *output,
 // ECMD:  set/get rgb white values
 int16_t
 parse_cmd_eiwomisa_white_rgb_command(char *cmd, char *output,
-                                    const uint16_t len)
+                                     const uint16_t len)
 {
   if (cmd[0] == '\0')
   {
@@ -195,16 +194,15 @@ parse_cmd_eiwomisa_white_rgb_command(char *cmd, char *output,
     }
     return ECMD_FINAL(strlen(output));
   }
-  uint16_t value,r,g,b;
-  cmd+=next_uint16(cmd, &value);
-  r = (uint8_t)value;
-  if (cmd[2] == '\0') return ECMD_FINAL_OK;
-  cmd+=next_uint16(cmd, &value);
-  g = (uint8_t)value;
-  if (cmd[2] == '\0') return ECMD_FINAL_OK;
-  cmd+=next_uint16(cmd, &value);
-  b = (uint8_t)value;
-  eiwomisa_setWhiteRGB(r,g,b);
+  int16_t r, g, b;
+  cmd += next_int16(cmd, &r);
+  if (cmd[0] == '\0')
+    return ECMD_ERR_PARSE_ERROR;
+  cmd += next_int16(cmd, &g);
+  if (cmd[0] == '\0')
+    return ECMD_ERR_PARSE_ERROR;
+  cmd += next_int16(cmd, &b);
+  eiwomisa_setWhiteRGB(r, g, b);
 
   return ECMD_FINAL_OK;
 }
@@ -226,6 +224,6 @@ parse_cmd_eiwomisa_white_rgb_command(char *cmd, char *output,
   ecmd_feature(eiwomisa_pwm_fade_command, "eiwomisa pwm fade", [channel value], Set/Get fade channel value)  
   ecmd_feature(eiwomisa_pwm_delay_command, "eiwomisa pwm delay", [value], Set/Get delay value)
   ecmd_feature(eiwomisa_pwm_command, "eiwomisa pwm", [channel value], Set/Get channel value)
-  ecmd_feature(eiwomisa_white_command, "eiwomisa white", [value], Set/Get channel value)
   ecmd_feature(eiwomisa_white_rgb_command, "eiwomisa white rgb", [value], Set/Get RGB value)
+  ecmd_feature(eiwomisa_white_command, "eiwomisa white", [value], Set/Get channel value)
 */

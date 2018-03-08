@@ -48,7 +48,7 @@ eiwomisa_irmp_periodic()
     EIWOMISA_IRMP_DEBUG("Protocol=%u Address=%u Command=%u Flags=%u",
                         irmp_data->protocol, irmp_data->address,
                         irmp_data->command, irmp_data->flags);
-                        
+
     if (irmp_data->protocol == EIWOMISA_IR_PROTOCOL &&
         irmp_data->address == EIWOMISA_IR_ADDRESS)
     {

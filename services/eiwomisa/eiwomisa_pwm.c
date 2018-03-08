@@ -57,8 +57,10 @@ eiwomisa_pwm_init()
   TC3_MODE_PWMFAST_ICR;         // Fast PWM, TOP ICR1, Pin low on OCR1A,OCR1B match
   TC3_PRESCALER_8;              // clockselect: clkI/O/8 (From prescaler)
 
-  PWMDEBUG("PWM1 freq %uHz", F_CPU / (PERIODIC_PRESCALER * (PERIODIC_TOP + 1)));
-  PWMDEBUG("PWM2 freq %uHz", F_CPU / (PERIODIC_PRESCALER * (PERIODIC_TOP + 1)));
+  PWMDEBUG("PWM1 freq %uHz",
+           F_CPU / (PERIODIC_PRESCALER * (PERIODIC_TOP + 1)));
+  PWMDEBUG("PWM2 freq %uHz",
+           F_CPU / (PERIODIC_PRESCALER * (PERIODIC_TOP + 1)));
 
   //Set all channels to Min Value
   e_leds i;

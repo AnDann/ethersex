@@ -143,22 +143,26 @@ eiwomisa_getWhite()
 void
 eiwomisa_setWhite(uint8_t newWhite)
 {
-  if(newWhite) config.whitedim[config.program] = ON;
+  if (newWhite)
+    config.whitedim[config.program] = ON;
   config.white_values[config.program] = newWhite;
 }
 
-uint32_t eiwomisa_getWhiteRGB()
+uint32_t
+eiwomisa_getWhiteRGB()
 {
-  return (uint32_t)config.white_rgb_values[LED_R] << 16 | (uint32_t)config.white_rgb_values[LED_G] << 8 | (uint32_t)config.white_rgb_values[LED_B];
+  return (uint32_t) config.white_rgb_values[LED_R] << 16 | (uint32_t) config.
+    white_rgb_values[LED_G] << 8 | (uint32_t) config.white_rgb_values[LED_B];
 }
 
-void eiwomisa_setWhiteRGB(const int16_t R, const int16_t G, const int16_t B)
+void
+eiwomisa_setWhiteRGB(const int16_t R, const int16_t G, const int16_t B)
 {
-  if(R>=0)
+  if (R >= 0)
     config.white_rgb_values[LED_R] = R;
-  if(G>=0)
+  if (G >= 0)
     config.white_rgb_values[LED_G] = G;
-  if(B>=0)
+  if (B >= 0)
     config.white_rgb_values[LED_B] = B;
 }
 
@@ -199,12 +203,12 @@ eiwomisa_doAction(const e_actions action)
         config.progspeed[config.program]--;
       break;
     case PROGDIM_UP:
-      newvalue=get_dmx_universe_dimmer(EIWOMISA_UNIVERSE);
+      newvalue = get_dmx_universe_dimmer(EIWOMISA_UNIVERSE);
       if (newvalue < 255)
         set_dmx_universe_dimmer(EIWOMISA_UNIVERSE, ++newvalue);
       break;
     case PROGDIM_DOWN:
-      newvalue=get_dmx_universe_dimmer(EIWOMISA_UNIVERSE);
+      newvalue = get_dmx_universe_dimmer(EIWOMISA_UNIVERSE);
       if (newvalue > 0)
         set_dmx_universe_dimmer(EIWOMISA_UNIVERSE, --newvalue);
       break;
@@ -292,9 +296,9 @@ eiwomisa_periodic()
         {
           if (i != LED_W || config.program == DMX_RECEIVER)
             eiwomisa_setpwm(i,
-                          get_dmx_channel_slot(EIWOMISA_UNIVERSE,
-                                               EIWOMISA_UNIVERSE_OFFSET + i,
-                                               eiwomisa_dmx_conn_id));
+                            get_dmx_channel_slot(EIWOMISA_UNIVERSE,
+                                                 EIWOMISA_UNIVERSE_OFFSET + i,
+                                                 eiwomisa_dmx_conn_id));
         }
       }
       else if (EIWOMISA_DMX_TIMEOUT
@@ -319,11 +323,11 @@ eiwomisa_periodic()
     default:
       break;
   }
-  
+
   //Dont update white channel if dmx is activated
   if (config.program == DMX_RECEIVER)
     return;
-  
+
   //Update white channel
   if (config.whitedim[config.program] == OFF)
   {

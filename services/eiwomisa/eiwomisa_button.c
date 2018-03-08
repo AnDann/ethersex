@@ -74,7 +74,7 @@ eiwomisa_button_handler(buttons_ButtonsType button, uint8_t status)
   button_data_t *data = malloc(sizeof(button_data_t));
   data->button = button;
   data->status = status;
-  push((char *)data, &mqtt_button_queue);
+  push((char *) data, &mqtt_button_queue);
 #endif
   eiwomisa_doAction(action);
 }

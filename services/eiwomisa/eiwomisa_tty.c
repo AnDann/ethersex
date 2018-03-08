@@ -166,10 +166,8 @@ eiwomisa_tty_periodic()
     wclear(wstatus);
     if (eiwomisa_getProgActive())
       waddch(wstatus, PLAY);
-	;
     else
       waddch(wstatus, PAUSE);
-	;
     wprintw_P(wstatus, PSTR("%2u"), eiwomisa_getProgSpeed());
     EIWOMISA_TTY_DEBUG("Refresh Stat=%u Prog=%u Active=%u Speed=%u",
                        whitestatus, eiwomisa_getProg(),

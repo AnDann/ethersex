@@ -60,7 +60,9 @@
 
 Queue mqtt_action_queue = { NULL, NULL };
 Queue mqtt_button_queue = { NULL, NULL };
-static uint8_t last_prog = 255, last_progspeed = 255, last_progdim = 0, last_white = 0;
+
+static uint8_t last_prog = 255, last_progspeed = 255, last_progdim =
+  0, last_white = 0;
 static uint32_t last_rgb = 0;
 
 void
@@ -69,13 +71,14 @@ eiwomisa_poll_cb(void)
   uint8_t len;
   char buf[DATA_LENGTH];
   char topic[TOPIC_LENGTH];
-  
+
   // Program publish
   if (last_prog != eiwomisa_getProg())
   {
     last_prog = eiwomisa_getProg();
     len = snprintf_P(buf, DATA_LENGTH, PSTR("%u"), last_prog);
-    mqtt_construct_publish_packet(EIWOMISA_PROG_PUBLISH_TOPIC, buf, len, EIWOMISA_MQTT_RETAIN);
+    mqtt_construct_publish_packet(EIWOMISA_PROG_PUBLISH_TOPIC, buf, len,
+                                  EIWOMISA_MQTT_RETAIN);
     EIWOMISA_MQTT_DEBUG("%s=%s", EIWOMISA_PROG_PUBLISH_TOPIC, buf);
   }
 
@@ -84,7 +87,8 @@ eiwomisa_poll_cb(void)
   {
     last_progdim = eiwomisa_getProgDimmer();
     len = snprintf_P(buf, DATA_LENGTH, PSTR("%u"), last_progdim);
-    mqtt_construct_publish_packet(EIWOMISA_PROGDIM_PUBLISH_TOPIC, buf, len, EIWOMISA_MQTT_RETAIN);
+    mqtt_construct_publish_packet(EIWOMISA_PROGDIM_PUBLISH_TOPIC, buf, len,
+                                  EIWOMISA_MQTT_RETAIN);
     EIWOMISA_MQTT_DEBUG("%s=%s", EIWOMISA_PROGDIM_PUBLISH_TOPIC, buf);
   }
 
@@ -93,7 +97,8 @@ eiwomisa_poll_cb(void)
   {
     last_progspeed = eiwomisa_getProgSpeed();
     len = snprintf_P(buf, DATA_LENGTH, PSTR("%u"), last_progspeed);
-    mqtt_construct_publish_packet(EIWOMISA_PROGSPEED_PUBLISH_TOPIC, buf, len, EIWOMISA_MQTT_RETAIN);
+    mqtt_construct_publish_packet(EIWOMISA_PROGSPEED_PUBLISH_TOPIC, buf, len,
+                                  EIWOMISA_MQTT_RETAIN);
     EIWOMISA_MQTT_DEBUG("%s=%s", EIWOMISA_PROGSPEED_PUBLISH_TOPIC, buf);
   }
 
@@ -102,7 +107,8 @@ eiwomisa_poll_cb(void)
   {
     last_white = eiwomisa_getWhite();
     len = snprintf_P(buf, DATA_LENGTH, PSTR("%u"), last_white);
-    mqtt_construct_publish_packet(EIWOMISA_WHITE_PUBLISH_TOPIC, buf, len, EIWOMISA_MQTT_RETAIN);
+    mqtt_construct_publish_packet(EIWOMISA_WHITE_PUBLISH_TOPIC, buf, len,
+                                  EIWOMISA_MQTT_RETAIN);
     EIWOMISA_MQTT_DEBUG("%s=%s", EIWOMISA_WHITE_PUBLISH_TOPIC, buf);
   }
 
@@ -110,16 +116,19 @@ eiwomisa_poll_cb(void)
   if (last_rgb != eiwomisa_getWhiteRGB())
   {
     last_rgb = eiwomisa_getWhiteRGB();
-    len = snprintf_P(buf, DATA_LENGTH, PSTR("%06"PRIX32), last_rgb);
-    mqtt_construct_publish_packet(EIWOMISA_RGB_PUBLISH_TOPIC, buf, len, EIWOMISA_MQTT_RETAIN);
+    len = snprintf_P(buf, DATA_LENGTH, PSTR("%06" PRIX32), last_rgb);
+    mqtt_construct_publish_packet(EIWOMISA_RGB_PUBLISH_TOPIC, buf, len,
+                                  EIWOMISA_MQTT_RETAIN);
     EIWOMISA_MQTT_DEBUG("%s=%s", EIWOMISA_RGB_PUBLISH_TOPIC, buf);
   }
-  
+
   // Action publish
   while (!isEmpty(&mqtt_action_queue))
   {
     char *data = pop(&mqtt_action_queue);
-    if (!mqtt_construct_publish_packet(EIWOMISA_ACTION_PUBLISH_TOPIC, data, strlen(data), EIWOMISA_MQTT_RETAIN))
+    if (!mqtt_construct_publish_packet
+        (EIWOMISA_ACTION_PUBLISH_TOPIC, data, strlen(data),
+         EIWOMISA_MQTT_RETAIN))
     {
       EIWOMISA_MQTT_DEBUG("MQTT send action failed!");
       free(data);
@@ -128,14 +137,15 @@ eiwomisa_poll_cb(void)
     EIWOMISA_MQTT_DEBUG("%s=%s", EIWOMISA_ACTION_PUBLISH_TOPIC, data);
     free(data);
   }
-  
+
 #ifdef  EIWOMISA_BUTTON_SUPPORT
   // Button publish
   while (!isEmpty(&mqtt_button_queue))
   {
     button_data_t *data;
-    data = (button_data_t*)pop(&mqtt_button_queue);
-    snprintf_P(topic, TOPIC_LENGTH, PSTR(EIWOMISA_BUTTON_PUBLISH_TOPIC), data->button);
+    data = (button_data_t *) pop(&mqtt_button_queue);
+    snprintf_P(topic, TOPIC_LENGTH, PSTR(EIWOMISA_BUTTON_PUBLISH_TOPIC),
+               data->button);
     len = snprintf_P(buf, DATA_LENGTH, PSTR("%02" PRId8), data->status);
     if (!mqtt_construct_publish_packet(topic, buf, len, EIWOMISA_MQTT_RETAIN))
     {
@@ -151,50 +161,60 @@ eiwomisa_poll_cb(void)
 
 void
 eiwomisa_publish_cb(char const *topic, uint16_t topic_length,
-                   const void *payload, uint16_t payload_length)
+                    const void *payload, uint16_t payload_length)
 {
 
   EIWOMISA_MQTT_DEBUG("MQTT Publish: %s", topic);
   if (topic_length < sizeof(EIWOMISA_SUBSCRIBE_TOPIC))
     return;
-  if (payload_length>=DATA_LENGTH)
+  if (payload_length >= DATA_LENGTH)
     return;
-  
+
   char strpayload[DATA_LENGTH];
   int16_t raw_val;
-  
+
   memcpy(strpayload, payload, payload_length);
   strpayload[payload_length] = 0;
   sscanf_P(strpayload, PSTR("%i"), &raw_val);
-  
-  if (strncmp_P(topic, PSTR(EIWOMISA_PROG_SUBSCRIBE_TOPIC), topic_length) == 0)
+
+  if (strncmp_P(topic, PSTR(EIWOMISA_PROG_SUBSCRIBE_TOPIC), topic_length) ==
+      0)
   {
     eiwomisa_setProg(raw_val);
   }
-  else if (strncmp_P(topic, PSTR(EIWOMISA_PROGDIM_SUBSCRIBE_TOPIC), topic_length) == 0)
+  else
+    if (strncmp_P(topic, PSTR(EIWOMISA_PROGDIM_SUBSCRIBE_TOPIC), topic_length)
+        == 0)
   {
     eiwomisa_setProgDimmer(raw_val);
   }
-  else if (strncmp_P(topic, PSTR(EIWOMISA_PROGSPEED_SUBSCRIBE_TOPIC), topic_length) == 0)
+  else
+    if (strncmp_P
+        (topic, PSTR(EIWOMISA_PROGSPEED_SUBSCRIBE_TOPIC), topic_length) == 0)
   {
     eiwomisa_setProgSpeed(raw_val);
   }
-  else if (strncmp_P(topic, PSTR(EIWOMISA_WHITE_SUBSCRIBE_TOPIC), topic_length) == 0)
+  else
+    if (strncmp_P(topic, PSTR(EIWOMISA_WHITE_SUBSCRIBE_TOPIC), topic_length)
+        == 0)
   {
     eiwomisa_setWhite(raw_val);
   }
-  else if (strncmp_P(topic, PSTR(EIWOMISA_RGB_SUBSCRIBE_TOPIC), topic_length) == 0)
+  else if (strncmp_P(topic, PSTR(EIWOMISA_RGB_SUBSCRIBE_TOPIC), topic_length)
+           == 0)
   {
     if (payload_length > 5)
     {
       uint8_t red, green, blue, len = 0;
       len += next_hexbyte(strpayload, &red);
-      len += next_hexbyte(strpayload+len, &green);
-      len += next_hexbyte(strpayload+len, &blue);
-      eiwomisa_setWhiteRGB(red,green,blue);
+      len += next_hexbyte(strpayload + len, &green);
+      len += next_hexbyte(strpayload + len, &blue);
+      eiwomisa_setWhiteRGB(red, green, blue);
     }
   }
-  else if (strncmp_P(topic, PSTR(EIWOMISA_ACTION_SUBSCRIBE_TOPIC), topic_length) == 0)
+  else
+    if (strncmp_P(topic, PSTR(EIWOMISA_ACTION_SUBSCRIBE_TOPIC), topic_length)
+        == 0)
   {
     eiwomisa_doAction(raw_val);
   }

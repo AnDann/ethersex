@@ -26,7 +26,8 @@
 #include "core/queue/queue.h"
 #include "hardware/input/buttons/buttons.h"
 
-typedef struct button_data_t {
+typedef struct button_data_t
+{
   buttons_ButtonsType button;
   uint8_t status;
 } button_data_t;

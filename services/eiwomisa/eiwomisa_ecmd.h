@@ -40,7 +40,7 @@ int16_t parse_cmd_eiwomisa_pwm_command(char *cmd, char *output,
 int16_t parse_cmd_eiwomisa_pwm_delay_command(char *cmd, char *output,
                                              const uint16_t len);
 int16_t parse_cmd_eiwomisa_white_command(char *cmd, char *output,
-                                             const uint16_t len);
+                                         const uint16_t len);
 int16_t parse_cmd_eiwomisa_white_rgb_command(char *cmd, char *output,
                                              const uint16_t len);
 #endif /* HAVE_EIWOMISA_ECMD_H */
