@@ -78,6 +78,34 @@ parse_cmd_eiwomisa_action(char *cmd, char *output, const uint16_t len)
 
 #ifdef EIWOMISA_DMX_SUPPORT
 int16_t
+parse_cmd_eiwomisa_prog_active(char *cmd, char *output, const uint16_t len)
+{
+  if (cmd[0])
+  {
+    eiwomisa_setProgActive(atoi(cmd));
+    return ECMD_FINAL_OK;
+  }
+  else
+  {
+    itoa(eiwomisa_getProgActive(), output, 10);
+    return ECMD_FINAL(strlen(output));
+  }
+}
+int16_t
+parse_cmd_eiwomisa_prog_dimmer(char *cmd, char *output, const uint16_t len)
+{
+  if (cmd[0])
+  {
+    eiwomisa_setProgDimmer(atoi(cmd));
+    return ECMD_FINAL_OK;
+  }
+  else
+  {
+    itoa(eiwomisa_getProgDimmer(), output, 10);
+    return ECMD_FINAL(strlen(output));
+  }
+}
+int16_t
 parse_cmd_eiwomisa_prog_speed(char *cmd, char *output, const uint16_t len)
 {
   if (cmd[0])
@@ -164,6 +192,20 @@ parse_cmd_eiwomisa_pwm_delay_command(char *cmd, char *output,
   }
 }
 
+// ECMD:  get JSON status
+int16_t
+parse_cmd_eiwomisa_status(char *cmd, char *output, const uint16_t len)
+{
+  return
+    ECMD_FINAL(snprintf_P(output, len,
+                          PSTR
+                          ("{\"w\":%hhu,\"ws\":%hhu,\"rgb\":%" PRIu32 ",\"p\":%hhu,\"pa\":%hhu,\"pd\":%hhu,\"ps\":%hu,\"fd\":%hhu}"),
+                          eiwomisa_getWhite(), eiwomisa_getWhiteStatus(),
+                          eiwomisa_getWhiteRGB(), eiwomisa_getProg(),
+                          eiwomisa_getProgActive(), eiwomisa_getProgDimmer(),
+                          eiwomisa_getProgSpeed(), eiwomisa_getfadeDelay()));
+}
+
 // ECMD:  set/get white value
 int16_t
 parse_cmd_eiwomisa_white_command(char *cmd, char *output, const uint16_t len)
@@ -212,15 +254,18 @@ parse_cmd_eiwomisa_white_rgb_command(char *cmd, char *output,
   header(services/eiwomisa/eiwomisa_ecmd.h)
   block([[EIWOMISA]])
   ecmd_ifdef(EIWOMISA_DMX_SUPPORT)
-    ecmd_feature(eiwomisa_prog_speed, "eiwomisa prog speed", , get/set actual programspeed)
+    ecmd_feature(eiwomisa_prog_active, "eiwomisa prog active", [value], get/set program active)
+    ecmd_feature(eiwomisa_prog_dimmer, "eiwomisa prog dimmer", [value], get/set actual programdimmer)
+    ecmd_feature(eiwomisa_prog_speed, "eiwomisa prog speed", [value], get/set actual programspeed)
   ecmd_endif()
-  ecmd_feature(eiwomisa_prog, "eiwomisa prog", , get/set actual program)
+  ecmd_feature(eiwomisa_prog, "eiwomisa prog", [value], get/set actual program)
   ecmd_feature(eiwomisa_action, "eiwomisa action", [action_code], do action code)
   ecmd_ifndef(TEENSY_SUPPORT)
     ecmd_feature(eiwomisa_save, "eiwomisa save", , write channels to EEPROM)
     ecmd_feature(eiwomisa_load, "eiwomisa load", , write channels to EEPROM)
   ecmd_endif()
   block([[EIWOMISA_PWM]])
+  ecmd_feature(eiwomisa_status, "eiwomisa status", , Get JSON status object)
   ecmd_feature(eiwomisa_pwm_fade_command, "eiwomisa pwm fade", [channel value], Set/Get fade channel value)  
   ecmd_feature(eiwomisa_pwm_delay_command, "eiwomisa pwm delay", [value], Set/Get delay value)
   ecmd_feature(eiwomisa_pwm_command, "eiwomisa pwm", [channel value], Set/Get channel value)

@@ -115,6 +115,12 @@ eiwomisa_getProgActive()
   return fxslot[EIWOMISA_FXSLOT].active;
 }
 
+void
+eiwomisa_setProgActive(uint16_t newactive)
+{
+  fxslot[EIWOMISA_FXSLOT].active = newactive;
+}
+
 uint8_t
 eiwomisa_getProgDimmer()
 {
@@ -287,7 +293,6 @@ eiwomisa_periodic()
       }
       break;
     case DMX_RECEIVER:
-    case AMBILIGHT:
       if (get_dmx_slot_state(EIWOMISA_UNIVERSE, eiwomisa_dmx_conn_id) ==
           DMX_NEWVALUES)
       {
@@ -307,6 +312,30 @@ eiwomisa_periodic()
         last_dmx_sync = clock_get_time();
         EIWOMISA_DEBUG("DMX Timeout!");
         for (uint8_t i = 0; i < LED_ALL; i++)
+        {
+          eiwomisa_setpwm(i, 0);
+        }
+      }      
+    case AMBILIGHT:
+      if (get_dmx_slot_state(EIWOMISA_UNIVERSE, eiwomisa_dmx_conn_id) ==
+          DMX_NEWVALUES)
+      {
+        last_dmx_sync = clock_get_time();
+        for (uint8_t i = 0; i < LED_W; i++)
+        {
+          if (i != LED_W || config.program == DMX_RECEIVER)
+            eiwomisa_setpwm(i,
+                            get_dmx_channel_slot(EIWOMISA_UNIVERSE,
+                                                 EIWOMISA_UNIVERSE_OFFSET + i,
+                                                 eiwomisa_dmx_conn_id));
+        }
+      }
+      else if (EIWOMISA_DMX_TIMEOUT
+               && (clock_get_time() - last_dmx_sync) > EIWOMISA_DMX_TIMEOUT)
+      {
+        last_dmx_sync = clock_get_time();
+        EIWOMISA_DEBUG("DMX Timeout!");
+        for (uint8_t i = 0; i < LED_W; i++)
         {
           eiwomisa_setpwm(i, 0);
         }

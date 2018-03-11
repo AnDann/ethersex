@@ -105,6 +105,7 @@ void eiwomisa_setProgSpeed(const uint16_t newspeed);
 void eiwomisa_setWhite(const uint8_t newwhite);
 void eiwomisa_setWhiteRGB(const int16_t R, const int16_t G, const int16_t B);
 void eiwomisa_setProgDimmer(const uint8_t newdimmer);
+void eiwomisa_setProgActive(uint16_t newactive);
 uint16_t eiwomisa_getProgSpeed();
 uint8_t eiwomisa_getProgActive();
 uint8_t eiwomisa_getProgDimmer();

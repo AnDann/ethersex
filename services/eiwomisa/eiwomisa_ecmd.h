@@ -39,6 +39,8 @@ int16_t parse_cmd_eiwomisa_pwm_command(char *cmd, char *output,
                                        const uint16_t len);
 int16_t parse_cmd_eiwomisa_pwm_delay_command(char *cmd, char *output,
                                              const uint16_t len);
+int16_t parse_cmd_eiwomisa_status(char *cmd, char *output,
+                                  const uint16_t len);
 int16_t parse_cmd_eiwomisa_white_command(char *cmd, char *output,
                                          const uint16_t len);
 int16_t parse_cmd_eiwomisa_white_rgb_command(char *cmd, char *output,
